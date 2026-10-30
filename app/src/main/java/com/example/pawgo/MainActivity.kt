@@ -21,6 +21,8 @@ class MainActivity : Activity(), NaviManager.Callback {
 
     private lateinit var naviManager: NaviManager
     private lateinit var recordStore: PetRecordStore
+    private lateinit var tripTracker: TripTracker
+    private var isResumedNow = false
 
     private lateinit var connectionStatus: TextView
     private lateinit var navigationStatus: TextView
@@ -47,6 +49,7 @@ class MainActivity : Activity(), NaviManager.Callback {
 
         recordStore = PetRecordStore(this)
         records = recordStore.load()
+        tripTracker = TripTracker(this)
         setUpPetRecording()
 
         connectionStatus = findViewById(R.id.connectionStatus)
@@ -158,6 +161,46 @@ class MainActivity : Activity(), NaviManager.Callback {
         }
     }
 
+    override fun onRouteStarted() {
+        tripTracker.onRouteStarted(System.currentTimeMillis())
+    }
+
+    override fun onDestinationArrived(name: String, durationSeconds: Int, distanceMeters: Int) {
+        tripTracker.endTrip(System.currentTimeMillis(), name, durationSeconds, distanceMeters)
+        showPendingTripResult()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isResumedNow = true
+        // 화면에 없을 때 주행이 끝났다면 다시 보일 때 결과를 보여 준다
+        showPendingTripResult()
+    }
+
+    override fun onPause() {
+        isResumedNow = false
+        super.onPause()
+    }
+
+    private fun confirmEndTrip() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.end_trip_title)
+            .setMessage(R.string.end_trip_message)
+            .setPositiveButton(R.string.end_trip_confirm) { _, _ ->
+                tripTracker.endTrip(System.currentTimeMillis())
+                showPendingTripResult()
+            }
+            .setNegativeButton(R.string.clear_records_cancel, null)
+            .show()
+    }
+
+    private fun showPendingTripResult() {
+        if (!isResumedNow) return
+        val result = tripTracker.pendingResult ?: return
+        tripTracker.clearPendingResult()
+        startActivity(TripSummaryActivity.intent(this, result))
+    }
+
     override fun onEvent(message: String) {
         events.addFirst("${timeFormat.format(Date())}  $message")
         while (events.size > MAX_EVENTS) events.removeLast()
@@ -193,6 +236,7 @@ class MainActivity : Activity(), NaviManager.Callback {
 
         findViewById<Button>(R.id.clearRecordsButton).setOnClickListener { confirmClearRecords() }
         findViewById<Button>(R.id.exportRecordsButton).setOnClickListener { exportRecords() }
+        findViewById<Button>(R.id.endTripButton).setOnClickListener { confirmEndTrip() }
         renderRecords()
     }
 

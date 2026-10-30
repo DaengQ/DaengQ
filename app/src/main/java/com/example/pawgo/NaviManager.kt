@@ -28,6 +28,8 @@ class NaviManager(context: Context, private val callback: Callback) {
         fun onConnectionFailed(throwable: Throwable)
         fun onNavigationStatus(status: NavigationStatus)
         fun onCurrentLocation(address: String, latitude: Double, longitude: Double)
+        fun onRouteStarted()
+        fun onDestinationArrived(name: String, durationSeconds: Int, distanceMeters: Int)
         fun onEvent(message: String)
     }
 
@@ -43,6 +45,7 @@ class NaviManager(context: Context, private val callback: Callback) {
                 "경로 탐색 시작: ${routeStartInfo.name} " +
                     "(${formatDistance(routeStartInfo.distance)}, ${formatDuration(routeStartInfo.duration)})"
             )
+            mainHandler.post { callback.onRouteStarted() }
         }
 
         override fun onRoutingCompleted() {
@@ -59,6 +62,11 @@ class NaviManager(context: Context, private val callback: Callback) {
 
         override fun onDestinationArrived(destinationArrivedInfo: DestinationArrivedInfo) {
             post("목적지에 도착했습니다")
+            mainHandler.post {
+                callback.onDestinationArrived(
+                    destinationArrivedInfo.name, destinationArrivedInfo.duration, destinationArrivedInfo.distance
+                )
+            }
         }
 
         override fun onDestinationInfo(destinationInfo: DestinationInfo) {
@@ -161,14 +169,6 @@ class NaviManager(context: Context, private val callback: Callback) {
 
     private fun post(message: String) {
         mainHandler.post { callback.onEvent(message) }
-    }
-
-    private fun formatDistance(meters: Int): String =
-        if (meters >= 1000) String.format("%.1fkm", meters / 1000.0) else "${meters}m"
-
-    private fun formatDuration(seconds: Int): String {
-        val minutes = seconds / 60
-        return if (minutes >= 60) "${minutes / 60}시간 ${minutes % 60}분" else "${minutes}분"
     }
 
     data class Destination(

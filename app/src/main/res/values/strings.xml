@@ -53,4 +53,18 @@
     <string name="export_nothing">위치가 저장된 기록이 없습니다</string>
     <string name="export_failed">내보내기에 실패했습니다: %1$s</string>
     <string name="dialog_ok">확인</string>
+
+    <string name="action_end_trip">주행 종료하고 결과 보기</string>
+    <string name="end_trip_title">주행을 종료할까요?</string>
+    <string name="end_trip_message">이번 주행에서 남긴 기록을 요약해 보여 줍니다.</string>
+    <string name="end_trip_confirm">종료</string>
+    <string name="trip_title">주행 결과</string>
+    <string name="trip_arrived">%1$s 도착</string>
+    <string name="trip_ended">주행 종료</string>
+    <string name="trip_highlight">기록 %1$d건 · 가장 많았던 행동은 %2$s (%3$d회)</string>
+    <string name="trip_no_records">이번 주행에서 남긴 기록이 없습니다</string>
+    <string name="trip_section_counts">행동별 횟수</string>
+    <string name="trip_count_line">%1$s  %2$d회</string>
+    <string name="trip_section_timeline">타임라인</string>
+    <string name="trip_close">닫기</string>
 </resources>

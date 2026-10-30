@@ -38,6 +38,14 @@
             android:layout_marginTop="12dp"
             android:orientation="vertical" />
 
+        <Button
+            android:id="@+id/endTripButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/action_end_trip"
+            android:textSize="16sp" />
+
         <TextView
             android:id="@+id/connectionStatus"
             android:layout_width="match_parent"
