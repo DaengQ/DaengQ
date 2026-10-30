@@ -60,6 +60,14 @@
                     android:textStyle="bold" />
 
                 <Button
+                    android:id="@+id/exportRecordsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/action_export_records"
+                    android:textSize="16sp" />
+
+                <Button
                     android:id="@+id/clearRecordsButton"
                     android:layout_width="wrap_content"
                     android:layout_height="64dp"

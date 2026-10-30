@@ -12,6 +12,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -191,6 +192,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         }
 
         findViewById<Button>(R.id.clearRecordsButton).setOnClickListener { confirmClearRecords() }
+        findViewById<Button>(R.id.exportRecordsButton).setOnClickListener { exportRecords() }
         renderRecords()
     }
 
@@ -262,6 +264,31 @@ class MainActivity : Activity(), NaviManager.Callback {
                 renderRecords()
             }
             .setNegativeButton(R.string.clear_records_cancel, null)
+            .show()
+    }
+
+    private fun exportRecords() {
+        if (records.none { it.latitude != null && it.longitude != null }) {
+            Toast.makeText(this, R.string.export_nothing, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val result = try {
+            PetRecordExporter(this).export(records)
+        } catch (e: IOException) {
+            Toast.makeText(this, getString(R.string.export_failed, e.message.orEmpty()), Toast.LENGTH_LONG).show()
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.export_done_title)
+            .setMessage(
+                getString(
+                    R.string.export_done_message,
+                    result.exportedCount,
+                    result.skippedCount,
+                    result.file.absolutePath
+                )
+            )
+            .setPositiveButton(R.string.dialog_ok, null)
             .show()
     }
 
