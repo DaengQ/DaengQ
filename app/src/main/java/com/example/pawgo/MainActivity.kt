@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
@@ -23,6 +24,7 @@ class MainActivity : Activity(), NaviManager.Callback {
     private lateinit var recordStore: PetRecordStore
     private lateinit var tripTracker: TripTracker
     private var isResumedNow = false
+    private var ignoreRouteCancelUntil = 0L
 
     private lateinit var connectionStatus: TextView
     private lateinit var navigationStatus: TextView
@@ -76,7 +78,13 @@ class MainActivity : Activity(), NaviManager.Callback {
 
         naviManager = NaviManager(this, this)
 
-        startRouteButton.setOnClickListener { naviManager.startRoute(destination) }
+        startRouteButton.setOnClickListener {
+            // 안내 중에 새 경로를 요청하면 기존 경로가 먼저 취소되므로, 그 취소로는 주행을 끝내지 않는다
+            if (tripTracker.isActive) {
+                ignoreRouteCancelUntil = SystemClock.uptimeMillis() + ROUTE_REPLACE_WINDOW_MS
+            }
+            naviManager.startRoute(destination)
+        }
         cancelRouteButton.setOnClickListener { naviManager.cancelRoute() }
         destinationInfoButton.setOnClickListener { naviManager.requestDestinationInfo() }
         showNavigationButton.setOnClickListener { naviManager.showNavigation() }
@@ -107,7 +115,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         }
         state.getString(STATE_NAVI_STATUS)
             ?.let { name -> NavigationStatus.entries.firstOrNull { it.name == name } }
-            ?.let { onNavigationStatus(it) }
+            ?.let { showNavigationStatus(it) }
         state.getCharSequence(STATE_LAST_RECORD)?.let { lastRecord.text = it }
     }
 
@@ -128,6 +136,12 @@ class MainActivity : Activity(), NaviManager.Callback {
     }
 
     override fun onNavigationStatus(status: NavigationStatus) {
+        // Pawgo를 켜기 전에 시작된 경로 안내도 주행으로 잡는다
+        if (status == NavigationStatus.ROUTE_DRIVE) tripTracker.onRouteStarted(System.currentTimeMillis())
+        showNavigationStatus(status)
+    }
+
+    private fun showNavigationStatus(status: NavigationStatus) {
         currentNaviStatus = status
         navigationStatus.text = getString(
             when (status) {
@@ -162,7 +176,19 @@ class MainActivity : Activity(), NaviManager.Callback {
     }
 
     override fun onRouteStarted() {
+        ignoreRouteCancelUntil = 0L
         tripTracker.onRouteStarted(System.currentTimeMillis())
+    }
+
+    override fun onRouteCancelled() {
+        if (SystemClock.uptimeMillis() < ignoreRouteCancelUntil) {
+            ignoreRouteCancelUntil = 0L
+            return
+        }
+        // 내비에서 안내를 종료하면 주행도 끝난 것으로 보고 바로 결과를 보여 준다
+        if (!tripTracker.isActive) return
+        tripTracker.endTrip(System.currentTimeMillis())
+        showPendingTripResult()
     }
 
     override fun onDestinationArrived(name: String, durationSeconds: Int, distanceMeters: Int) {
@@ -265,7 +291,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         mainHandler.postAtTime(
             { lastRecord.setBackgroundResource(R.color.last_record_idle) },
             FLASH_TOKEN,
-            android.os.SystemClock.uptimeMillis() + FLASH_DURATION_MS
+            SystemClock.uptimeMillis() + FLASH_DURATION_MS
         )
     }
 
@@ -351,6 +377,7 @@ class MainActivity : Activity(), NaviManager.Callback {
 
     companion object {
         private const val MAX_EVENTS = 20
+        private const val ROUTE_REPLACE_WINDOW_MS = 5_000L
         private const val MAX_RECORDS_SHOWN = 50
         private const val BEHAVIOR_COLUMNS = 3
         private const val FLASH_DURATION_MS = 1500L

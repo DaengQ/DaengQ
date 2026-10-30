@@ -29,6 +29,7 @@ class NaviManager(context: Context, private val callback: Callback) {
         fun onNavigationStatus(status: NavigationStatus)
         fun onCurrentLocation(address: String, latitude: Double, longitude: Double)
         fun onRouteStarted()
+        fun onRouteCancelled()
         fun onDestinationArrived(name: String, durationSeconds: Int, distanceMeters: Int)
         fun onEvent(message: String)
     }
@@ -54,6 +55,7 @@ class NaviManager(context: Context, private val callback: Callback) {
 
         override fun onRouteCancelled() {
             post("경로 안내가 취소되었습니다")
+            mainHandler.post { callback.onRouteCancelled() }
         }
 
         override fun onDestinationChanged() {

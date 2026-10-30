@@ -14,12 +14,16 @@ data class TripResult(
 /**
  * 주행 구간을 추적한다. 앱이 다시 만들어지거나 재시작돼도 이어지도록 SharedPreferences에 저장한다.
  *
- * 주행 시작은 경로 안내 시작, 끝은 목적지 도착 또는 "주행 종료" 버튼이다.
+ * 주행 시작은 경로 안내 시작, 끝은 목적지 도착, 내비의 안내 종료, "주행 종료" 버튼이다.
  * 경로 안내 없이 기록했다면 직전 주행이 끝난 뒤부터를 이번 주행으로 본다.
  */
 class TripTracker(context: Context) {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    /** 경로 안내로 시작한 주행이 진행 중인지. */
+    val isActive: Boolean
+        get() = prefs.contains(KEY_ACTIVE_START)
 
     /** 경로 안내가 시작되면 호출한다. 이미 진행 중인 주행이 있으면 그대로 둔다. */
     fun onRouteStarted(now: Long) {
