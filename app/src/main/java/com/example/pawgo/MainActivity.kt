@@ -67,6 +67,9 @@ class MainActivity : Activity(), NaviManager.Callback {
         )
         setNaviButtonsEnabled(false)
 
+        // 창 분할·크기 변경으로 화면이 다시 만들어져도 보던 상태를 이어서 보여 준다
+        savedInstanceState?.let { restoreState(it) }
+
         naviManager = NaviManager(this, this)
 
         startRouteButton.setOnClickListener { naviManager.startRoute(destination) }
@@ -84,6 +87,24 @@ class MainActivity : Activity(), NaviManager.Callback {
         }
 
         naviManager.connect()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putStringArrayList(STATE_EVENTS, ArrayList(events))
+        outState.putString(STATE_NAVI_STATUS, currentNaviStatus?.name)
+        outState.putCharSequence(STATE_LAST_RECORD, lastRecord.text)
+    }
+
+    private fun restoreState(state: Bundle) {
+        state.getStringArrayList(STATE_EVENTS)?.let { saved ->
+            events.addAll(saved)
+            if (events.isNotEmpty()) eventLog.text = events.joinToString("\n")
+        }
+        state.getString(STATE_NAVI_STATUS)
+            ?.let { name -> NavigationStatus.entries.firstOrNull { it.name == name } }
+            ?.let { onNavigationStatus(it) }
+        state.getCharSequence(STATE_LAST_RECORD)?.let { lastRecord.text = it }
     }
 
     override fun onDestroy() {
@@ -261,5 +282,9 @@ class MainActivity : Activity(), NaviManager.Callback {
         private const val FLASH_DURATION_MS = 1500L
         private const val LOCATION_FILL_WINDOW_MS = 10_000L
         private val FLASH_TOKEN = Any()
+
+        private const val STATE_EVENTS = "events"
+        private const val STATE_NAVI_STATUS = "naviStatus"
+        private const val STATE_LAST_RECORD = "lastRecord"
     }
 }

@@ -26,6 +26,7 @@
     <string name="search_default_keyword">동물병원</string>
     <string name="action_search">내비에서 검색</string>
     <string name="action_show_navigation">내비게이션 화면 열기</string>
+    <string name="action_show_navigation_short">내비 열기</string>
 
     <string name="section_events">내비 이벤트</string>
     <string name="event_log_empty">아직 이벤트가 없습니다</string>
