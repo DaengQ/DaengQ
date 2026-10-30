@@ -135,15 +135,18 @@ class MainActivity : Activity(), NaviManager.Callback {
         )
     }
 
-    override fun onCurrentLocation(address: String) {
-        // 버튼을 누른 직후 요청한 위치로, 아직 주소가 비어 있는 최근 기록을 채운다
-        if (address.isBlank()) return
+    override fun onCurrentLocation(address: String, latitude: Double, longitude: Double) {
+        // 버튼을 누른 직후 요청한 위치로, 아직 위치가 비어 있는 최근 기록을 채운다
         val now = System.currentTimeMillis()
         var changed = false
         records.replaceAll { record ->
-            if (record.address == null && now - record.timeMillis <= LOCATION_FILL_WINDOW_MS) {
+            if (record.latitude == null && now - record.timeMillis <= LOCATION_FILL_WINDOW_MS) {
                 changed = true
-                record.copy(address = address)
+                record.copy(
+                    address = address.ifBlank { null },
+                    latitude = latitude,
+                    longitude = longitude,
+                )
             } else {
                 record
             }

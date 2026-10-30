@@ -27,7 +27,7 @@ class NaviManager(context: Context, private val callback: Callback) {
         fun onConnected()
         fun onConnectionFailed(throwable: Throwable)
         fun onNavigationStatus(status: NavigationStatus)
-        fun onCurrentLocation(address: String)
+        fun onCurrentLocation(address: String, latitude: Double, longitude: Double)
         fun onEvent(message: String)
     }
 
@@ -79,7 +79,11 @@ class NaviManager(context: Context, private val callback: Callback) {
         }
 
         override fun onCurrentLocationInfo(currentLocationInfo: CurrentLocationInfo) {
-            mainHandler.post { callback.onCurrentLocation(currentLocationInfo.address) }
+            mainHandler.post {
+                callback.onCurrentLocation(
+                    currentLocationInfo.address, currentLocationInfo.latitude, currentLocationInfo.longitude
+                )
+            }
         }
 
         override fun onError(errorCode: NaviErrorCode) {

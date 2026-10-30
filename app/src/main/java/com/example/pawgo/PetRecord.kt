@@ -19,4 +19,7 @@ data class PetRecord(
     val naviStatus: String?,
     /** 내비가 알려 준 현재 위치 주소. 아직 받지 못했으면 null. */
     val address: String?,
+    /** 내비가 알려 준 현재 위치 좌표. 아직 받지 못했으면 null. */
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )

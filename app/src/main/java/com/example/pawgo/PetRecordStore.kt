@@ -37,6 +37,8 @@ class PetRecordStore(context: Context) {
         put("behavior", behavior.name)
         put("naviStatus", naviStatus ?: JSONObject.NULL)
         put("address", address ?: JSONObject.NULL)
+        put("latitude", latitude ?: JSONObject.NULL)
+        put("longitude", longitude ?: JSONObject.NULL)
     }
 
     private fun JSONObject.toRecord() = PetRecord(
@@ -44,10 +46,16 @@ class PetRecordStore(context: Context) {
         behavior = PetBehavior.valueOf(getString("behavior")),
         naviStatus = optStringOrNull("naviStatus"),
         address = optStringOrNull("address"),
+        latitude = optDoubleOrNull("latitude"),
+        longitude = optDoubleOrNull("longitude"),
     )
 
+    // isNull은 키가 없을 때도 true라서 좌표가 없던 예전 기록도 그대로 읽힌다
     private fun JSONObject.optStringOrNull(name: String): String? =
         if (isNull(name)) null else getString(name)
+
+    private fun JSONObject.optDoubleOrNull(name: String): Double? =
+        if (isNull(name)) null else getDouble(name)
 
     companion object {
         private const val TAG = "PetRecordStore"
