@@ -2,6 +2,7 @@ package com.example.pawgo
 
 import ai.pleos.playground.navi.constants.NaviErrorCode
 import ai.pleos.playground.navi.constants.NavigationStatus
+import ai.pleos.playground.navi.data.CurrentLocationInfo
 import ai.pleos.playground.navi.data.DestinationArrivedInfo
 import ai.pleos.playground.navi.data.DestinationInfo
 import ai.pleos.playground.navi.data.NavigationScreenRequest
@@ -26,6 +27,7 @@ class NaviManager(context: Context, private val callback: Callback) {
         fun onConnected()
         fun onConnectionFailed(throwable: Throwable)
         fun onNavigationStatus(status: NavigationStatus)
+        fun onCurrentLocation(address: String)
         fun onEvent(message: String)
     }
 
@@ -74,6 +76,10 @@ class NaviManager(context: Context, private val callback: Callback) {
 
         override fun onNavigationStatus(status: NavigationStatus) {
             mainHandler.post { callback.onNavigationStatus(status) }
+        }
+
+        override fun onCurrentLocationInfo(currentLocationInfo: CurrentLocationInfo) {
+            mainHandler.post { callback.onCurrentLocation(currentLocationInfo.address) }
         }
 
         override fun onError(errorCode: NaviErrorCode) {
@@ -134,6 +140,11 @@ class NaviManager(context: Context, private val callback: Callback) {
 
     fun requestDestinationInfo() {
         naviHelper.getDestinationInfo()
+    }
+
+    /** 현재 위치를 요청한다. 결과는 [Callback.onCurrentLocation]으로 온다. */
+    fun requestCurrentLocation() {
+        naviHelper.getCurrentLocationInfo()
     }
 
     fun showNavigation() {
