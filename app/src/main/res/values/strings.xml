@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Pawgo</string>
+
+    <string name="status_connecting">내비게이션 연결 중…</string>
+    <string name="status_connected">내비게이션 연결됨</string>
+    <string name="status_failed">내비게이션 연결 실패: %1$s</string>
+
+    <string name="navi_status_unknown">내비 상태: 확인 중</string>
+    <string name="navi_status_inactive">내비 상태: 꺼짐</string>
+    <string name="navi_status_initializing">내비 상태: 준비 중</string>
+    <string name="navi_status_free_drive">내비 상태: 일반 주행</string>
+    <string name="navi_status_route_drive">내비 상태: 경로 안내 중</string>
+
+    <string name="section_destination">목적지 (문서 예제)</string>
+    <string name="action_start_route">안내 시작</string>
+    <string name="action_cancel_route">안내 취소</string>
+    <string name="action_destination_info">목적지 확인</string>
+
+    <string name="section_search">장소 검색</string>
+    <string name="search_hint">검색어</string>
+    <string name="search_default_keyword">동물병원</string>
+    <string name="action_search">내비에서 검색</string>
+    <string name="action_show_navigation">내비게이션 화면 열기</string>
+
+    <string name="section_events">내비 이벤트</string>
+    <string name="event_log_empty">아직 이벤트가 없습니다</string>
+    <string name="toast_empty_keyword">검색어를 입력하세요</string>
 </resources>
