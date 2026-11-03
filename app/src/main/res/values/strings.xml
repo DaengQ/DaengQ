@@ -53,7 +53,13 @@
     <string name="export_nothing">위치가 저장된 기록이 없습니다</string>
     <string name="export_failed">내보내기에 실패했습니다: %1$s</string>
     <string name="dialog_ok">확인</string>
-    <string name="voice_recorded">%1$s 기록했어요</string>
+    <string name="pet_name">뽀삐</string>
+    <string name="check_in_question">지금 %1$s 상태 어때요?</string>
+    <string name="check_in_recorded">%1$s, 기록했어요</string>
+    <string name="check_in_fine">알겠어요. 다음에 또 물어볼게요</string>
+    <string name="check_in_retry">잘 못 들었어요. 다시 말씀해 주세요</string>
+    <string name="check_in_give_up">다음에 다시 물어볼게요</string>
+    <string name="check_in_heard">음성 대답: %1$s</string>
     <string name="voice_error">음성 안내 오류: %1$s</string>
 
     <string name="action_end_trip">주행 종료하고 결과 보기</string>

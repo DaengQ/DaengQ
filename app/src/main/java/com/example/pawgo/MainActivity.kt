@@ -21,11 +21,12 @@ import java.util.Locale
 class MainActivity : Activity(), NaviManager.Callback {
 
     private lateinit var naviManager: NaviManager
-    private lateinit var petVoice: PetVoice
+    private lateinit var petCheckIn: PetCheckIn
     private lateinit var recordStore: PetRecordStore
     private lateinit var tripTracker: TripTracker
     private var isResumedNow = false
     private var ignoreRouteCancelUntil = 0L
+    private var isCheckInScheduled = false
 
     private lateinit var connectionStatus: TextView
     private lateinit var navigationStatus: TextView
@@ -101,8 +102,9 @@ class MainActivity : Activity(), NaviManager.Callback {
 
         naviManager.connect()
 
-        petVoice = PetVoice(this) { error -> onEvent(getString(R.string.voice_error, error)) }
-        petVoice.connect()
+        petCheckIn = PetCheckIn(this, onRecorded = ::recordBehavior, onEvent = ::onEvent)
+        petCheckIn.connect()
+        updateCheckInSchedule()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -126,7 +128,7 @@ class MainActivity : Activity(), NaviManager.Callback {
     override fun onDestroy() {
         mainHandler.removeCallbacksAndMessages(null)
         naviManager.release()
-        petVoice.release()
+        petCheckIn.release()
         super.onDestroy()
     }
 
@@ -144,6 +146,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         // Pawgo를 켜기 전에 시작된 경로 안내도 주행으로 잡는다
         if (status == NavigationStatus.ROUTE_DRIVE) tripTracker.onRouteStarted(System.currentTimeMillis())
         showNavigationStatus(status)
+        updateCheckInSchedule()
     }
 
     private fun showNavigationStatus(status: NavigationStatus) {
@@ -183,6 +186,7 @@ class MainActivity : Activity(), NaviManager.Callback {
     override fun onRouteStarted() {
         ignoreRouteCancelUntil = 0L
         tripTracker.onRouteStarted(System.currentTimeMillis())
+        updateCheckInSchedule()
     }
 
     override fun onRouteCancelled() {
@@ -225,7 +229,30 @@ class MainActivity : Activity(), NaviManager.Callback {
             .show()
     }
 
+    /** 경로 안내로 주행 중이면 15분마다 음성으로 상태를 묻고, 주행이 끝나면 멈춘다. */
+    private fun updateCheckInSchedule() {
+        if (!tripTracker.isActive) {
+            mainHandler.removeCallbacksAndMessages(CHECK_IN_TOKEN)
+            isCheckInScheduled = false
+            petCheckIn.cancel()
+            return
+        }
+        if (isCheckInScheduled) return
+        isCheckInScheduled = true
+        mainHandler.postAtTime(
+            {
+                isCheckInScheduled = false
+                petCheckIn.ask()
+                updateCheckInSchedule()
+            },
+            CHECK_IN_TOKEN,
+            SystemClock.uptimeMillis() + CHECK_IN_INTERVAL_MS
+        )
+    }
+
     private fun showPendingTripResult() {
+        // 주행이 끝나면 예약된 질문도 멈춘다
+        updateCheckInSchedule()
         if (!isResumedNow) return
         val result = tripTracker.pendingResult ?: return
         tripTracker.clearPendingResult()
@@ -286,7 +313,6 @@ class MainActivity : Activity(), NaviManager.Callback {
         )
         flashLastRecord()
         renderRecords()
-        petVoice.speak(getString(R.string.voice_recorded, getString(behavior.labelRes)))
 
         if (naviManager.isConnected) naviManager.requestCurrentLocation()
     }
@@ -389,6 +415,8 @@ class MainActivity : Activity(), NaviManager.Callback {
         private const val FLASH_DURATION_MS = 1500L
         private const val LOCATION_FILL_WINDOW_MS = 10_000L
         private val FLASH_TOKEN = Any()
+        private const val CHECK_IN_INTERVAL_MS = 15 * 60 * 1000L
+        private val CHECK_IN_TOKEN = Any()
 
         private const val STATE_EVENTS = "events"
         private const val STATE_NAVI_STATUS = "naviStatus"
