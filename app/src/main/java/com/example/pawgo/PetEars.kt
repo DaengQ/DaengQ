@@ -8,6 +8,7 @@ import ai.pleos.playground.stt.listener.ResultListener
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import java.util.Locale
 
@@ -83,11 +84,14 @@ class PetEars(
         pendingAnswer = onAnswer
         lastText = null
         speechToText.request()
+        // 대답이 없어도 마이크를 오래 열어 두지 않는다
+        mainHandler.postAtTime({ deliver(lastText) }, LISTEN_TOKEN, SystemClock.uptimeMillis() + LISTEN_TIMEOUT_MS)
     }
 
     fun stop() {
         if (pendingAnswer == null) return
         pendingAnswer = null
+        mainHandler.removeCallbacksAndMessages(LISTEN_TOKEN)
         speechToText.stop()
     }
 
@@ -102,11 +106,14 @@ class PetEars(
     private fun deliver(text: String?) {
         val callback = pendingAnswer ?: return
         pendingAnswer = null
+        mainHandler.removeCallbacksAndMessages(LISTEN_TOKEN)
         speechToText.stop()
         callback(text?.takeIf { it.isNotBlank() })
     }
 
     companion object {
         private const val TAG = "PetEars"
+        private const val LISTEN_TIMEOUT_MS = 8_000L
+        private val LISTEN_TOKEN = Any()
     }
 }
