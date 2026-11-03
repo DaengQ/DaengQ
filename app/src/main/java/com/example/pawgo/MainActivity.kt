@@ -21,6 +21,7 @@ import java.util.Locale
 class MainActivity : Activity(), NaviManager.Callback {
 
     private lateinit var naviManager: NaviManager
+    private lateinit var petVoice: PetVoice
     private lateinit var recordStore: PetRecordStore
     private lateinit var tripTracker: TripTracker
     private var isResumedNow = false
@@ -99,6 +100,9 @@ class MainActivity : Activity(), NaviManager.Callback {
         }
 
         naviManager.connect()
+
+        petVoice = PetVoice(this) { error -> onEvent(getString(R.string.voice_error, error)) }
+        petVoice.connect()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -122,6 +126,7 @@ class MainActivity : Activity(), NaviManager.Callback {
     override fun onDestroy() {
         mainHandler.removeCallbacksAndMessages(null)
         naviManager.release()
+        petVoice.release()
         super.onDestroy()
     }
 
@@ -281,6 +286,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         )
         flashLastRecord()
         renderRecords()
+        petVoice.speak(getString(R.string.voice_recorded, getString(behavior.labelRes)))
 
         if (naviManager.isConnected) naviManager.requestCurrentLocation()
     }
