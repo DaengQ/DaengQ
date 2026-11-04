@@ -9,4 +9,11 @@
     <color name="white">#FFFFFFFF</color>
     <color name="last_record_idle">#1F808080</color>
     <color name="last_record_flash">#FFFFD54F</color>
+    <color name="marker_barking">#FFE53935</color>
+    <color name="marker_whining">#FF8E24AA</color>
+    <color name="marker_carsick">#FF2E7D32</color>
+    <color name="marker_sleeping">#FF1E88E5</color>
+    <color name="marker_toilet">#FF6D4C41</color>
+    <color name="marker_excited">#FFEF6C00</color>
+    <color name="location_icon">#FF1565C0</color>
 </resources>

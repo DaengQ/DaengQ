@@ -1,15 +1,20 @@
 package com.example.pawgo
 
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 
-/** 운전자가 한 번의 터치로 기록하는 반려동물 행동. */
-enum class PetBehavior(@StringRes val labelRes: Int) {
-    BARKING(R.string.behavior_barking),
-    WHINING(R.string.behavior_whining),
-    CARSICK(R.string.behavior_carsick),
-    SLEEPING(R.string.behavior_sleeping),
-    TOILET(R.string.behavior_toilet),
-    EXCITED(R.string.behavior_excited),
+/** 운전자가 버튼이나 음성으로 기록하는 반려동물 행동. 지도에는 색과 짧은 이름의 마커로 표시한다. */
+enum class PetBehavior(
+    @StringRes val labelRes: Int,
+    @StringRes val markerLabelRes: Int,
+    @ColorRes val markerColorRes: Int,
+) {
+    BARKING(R.string.behavior_barking, R.string.marker_barking, R.color.marker_barking),
+    WHINING(R.string.behavior_whining, R.string.marker_whining, R.color.marker_whining),
+    CARSICK(R.string.behavior_carsick, R.string.marker_carsick, R.color.marker_carsick),
+    SLEEPING(R.string.behavior_sleeping, R.string.marker_sleeping, R.color.marker_sleeping),
+    TOILET(R.string.behavior_toilet, R.string.marker_toilet, R.color.marker_toilet),
+    EXCITED(R.string.behavior_excited, R.string.marker_excited, R.color.marker_excited),
 }
 
 data class PetRecord(

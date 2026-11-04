@@ -1,203 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 세로 창: 내비와 나란히 띄웠을 때. 행동 기록을 위에 크게 두고 내비 조작은 간단히 둔다. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- 세로 창: 위쪽 지도, 아래쪽 행동 기록 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/mapContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/section_pet"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/lastRecord"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@color/last_record_idle"
-            android:gravity="center"
-            android:minHeight="88dp"
-            android:padding="16dp"
-            android:text="@string/last_record_empty"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:id="@+id/behaviorButtons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical" />
-
-        <Button
-            android:id="@+id/endTripButton"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginTop="12dp"
-            android:text="@string/action_end_trip"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/connectionStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/status_connecting"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/navigationStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/navi_status_unknown"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/destinationName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/destinationAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/startRouteButton"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:text="@string/action_start_route"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/cancelRouteButton"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:text="@string/action_cancel_route"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/destinationInfoButton"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:text="@string/action_destination_info"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/searchKeyword"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:hint="@string/search_hint"
-                android:imeOptions="actionSearch"
-                android:importantForAutofill="no"
-                android:inputType="text"
-                android:text="@string/search_default_keyword"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/searchButton"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:text="@string/action_search"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/showNavigationButton"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:text="@string/action_show_navigation_short"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="24dp">
 
             <TextView
-                android:id="@+id/recordCount"
-                android:layout_width="0dp"
+                android:id="@+id/locationStatus"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:text="@string/location_connecting"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/lastRecord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@color/last_record_idle"
+                android:gravity="center"
+                android:minHeight="88dp"
+                android:padding="16dp"
+                android:text="@string/last_record_empty"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/behaviorButtons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical" />
+
+            <Button
+                android:id="@+id/tripButton"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="12dp"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/exportRecordsButton"
-                android:layout_width="wrap_content"
-                android:layout_height="64dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/action_export_records"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/recordCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/exportRecordsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/action_export_records"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/clearRecordsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:text="@string/action_clear_records"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/recordList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
                 android:textSize="16sp" />
 
-            <Button
-                android:id="@+id/clearRecordsButton"
-                android:layout_width="wrap_content"
-                android:layout_height="64dp"
-                android:text="@string/action_clear_records"
-                android:textSize="16sp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/recordList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:lineSpacingExtra="4dp"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/section_events"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/eventLog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/event_log_empty"
-            android:textSize="14sp" />
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

@@ -7,9 +7,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -18,28 +17,24 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/** 주행 화면. 지도를 보여 주고, 버튼이나 음성으로 남긴 기록을 바로 지도에 표시한다. */
 class MainActivity : Activity(), NaviManager.Callback {
 
     private lateinit var naviManager: NaviManager
     private lateinit var petCheckIn: PetCheckIn
+    private lateinit var petMap: PetMap
     private lateinit var recordStore: PetRecordStore
     private lateinit var tripTracker: TripTracker
     private var isResumedNow = false
-    private var ignoreRouteCancelUntil = 0L
     private var isCheckInScheduled = false
 
-    private lateinit var connectionStatus: TextView
-    private lateinit var navigationStatus: TextView
-    private lateinit var searchKeyword: EditText
-    private lateinit var eventLog: TextView
-    private lateinit var naviButtons: List<Button>
-
+    private lateinit var locationStatus: TextView
+    private lateinit var tripButton: Button
     private lateinit var lastRecord: TextView
     private lateinit var recordCount: TextView
     private lateinit var recordList: TextView
     private val behaviorButtons = mutableMapOf<PetBehavior, Button>()
 
-    private val events = ArrayDeque<String>()
     private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -54,115 +49,68 @@ class MainActivity : Activity(), NaviManager.Callback {
         recordStore = PetRecordStore(this)
         records = recordStore.load()
         tripTracker = TripTracker(this)
+        locationStatus = findViewById(R.id.locationStatus)
+        tripButton = findViewById(R.id.tripButton)
+        petMap = PetMap(findViewById<FrameLayout>(R.id.mapContainer))
         setUpPetRecording()
 
-        connectionStatus = findViewById(R.id.connectionStatus)
-        navigationStatus = findViewById(R.id.navigationStatus)
-        searchKeyword = findViewById(R.id.searchKeyword)
-        eventLog = findViewById(R.id.eventLog)
-
-        val destination = NaviManager.SAMPLE_DESTINATION
-        findViewById<TextView>(R.id.destinationName).text = destination.name
-        findViewById<TextView>(R.id.destinationAddress).text = destination.address
-
-        val startRouteButton = findViewById<Button>(R.id.startRouteButton)
-        val cancelRouteButton = findViewById<Button>(R.id.cancelRouteButton)
-        val destinationInfoButton = findViewById<Button>(R.id.destinationInfoButton)
-        val searchButton = findViewById<Button>(R.id.searchButton)
-        val showNavigationButton = findViewById<Button>(R.id.showNavigationButton)
-        naviButtons = listOf(
-            startRouteButton, cancelRouteButton, destinationInfoButton, searchButton, showNavigationButton
-        )
-        setNaviButtonsEnabled(false)
-
         // 창 분할·크기 변경으로 화면이 다시 만들어져도 보던 상태를 이어서 보여 준다
-        savedInstanceState?.let { restoreState(it) }
+        savedInstanceState?.getCharSequence(STATE_LAST_RECORD)?.let { lastRecord.text = it }
 
         naviManager = NaviManager(this, this)
-
-        startRouteButton.setOnClickListener {
-            // 안내 중에 새 경로를 요청하면 기존 경로가 먼저 취소되므로, 그 취소로는 주행을 끝내지 않는다
-            if (tripTracker.isActive) {
-                ignoreRouteCancelUntil = SystemClock.uptimeMillis() + ROUTE_REPLACE_WINDOW_MS
-            }
-            naviManager.startRoute(destination)
-        }
-        cancelRouteButton.setOnClickListener { naviManager.cancelRoute() }
-        destinationInfoButton.setOnClickListener { naviManager.requestDestinationInfo() }
-        showNavigationButton.setOnClickListener { naviManager.showNavigation() }
-        searchButton.setOnClickListener { searchPlace() }
-        searchKeyword.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH && naviManager.isConnected) {
-                searchPlace()
-                true
-            } else {
-                false
-            }
-        }
-
         naviManager.connect()
 
-        petCheckIn = PetCheckIn(this, onRecorded = ::recordBehavior, onEvent = ::onEvent)
+        petCheckIn = PetCheckIn(this, onRecorded = ::recordBehavior, onEvent = ::onCheckInEvent)
         petCheckIn.connect()
-        updateCheckInSchedule()
+        onTripChanged()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putStringArrayList(STATE_EVENTS, ArrayList(events))
-        outState.putString(STATE_NAVI_STATUS, currentNaviStatus?.name)
         outState.putCharSequence(STATE_LAST_RECORD, lastRecord.text)
-    }
-
-    private fun restoreState(state: Bundle) {
-        state.getStringArrayList(STATE_EVENTS)?.let { saved ->
-            events.addAll(saved)
-            if (events.isNotEmpty()) eventLog.text = events.joinToString("\n")
-        }
-        state.getString(STATE_NAVI_STATUS)
-            ?.let { name -> NavigationStatus.entries.firstOrNull { it.name == name } }
-            ?.let { showNavigationStatus(it) }
-        state.getCharSequence(STATE_LAST_RECORD)?.let { lastRecord.text = it }
     }
 
     override fun onDestroy() {
         mainHandler.removeCallbacksAndMessages(null)
         naviManager.release()
         petCheckIn.release()
+        petMap.release()
         super.onDestroy()
     }
 
+    override fun onResume() {
+        super.onResume()
+        isResumedNow = true
+        petMap.onResume()
+        // 화면에 없을 때 주행이 끝났다면 다시 보일 때 결과를 보여 준다
+        showPendingTripResult()
+    }
+
+    override fun onPause() {
+        isResumedNow = false
+        petMap.onPause()
+        super.onPause()
+    }
+
     override fun onConnected() {
-        connectionStatus.text = getString(R.string.status_connected)
-        setNaviButtonsEnabled(true)
+        locationStatus.text = getString(R.string.location_connected)
+        // 주행 전에도 지도가 현재 위치를 보여 주도록 한 번 요청한다
+        naviManager.requestCurrentLocation()
+        updateLocationPolling()
     }
 
     override fun onConnectionFailed(throwable: Throwable) {
-        connectionStatus.text = getString(R.string.status_failed, throwable.message.orEmpty())
-        setNaviButtonsEnabled(false)
+        locationStatus.text = getString(R.string.location_failed, throwable.message.orEmpty())
     }
 
     override fun onNavigationStatus(status: NavigationStatus) {
-        // Pawgo를 켜기 전에 시작된 경로 안내도 주행으로 잡는다
-        if (status == NavigationStatus.ROUTE_DRIVE) tripTracker.onRouteStarted(System.currentTimeMillis())
-        showNavigationStatus(status)
-        updateCheckInSchedule()
-    }
-
-    private fun showNavigationStatus(status: NavigationStatus) {
         currentNaviStatus = status
-        navigationStatus.text = getString(
-            when (status) {
-                NavigationStatus.INACTIVE -> R.string.navi_status_inactive
-                NavigationStatus.INITIALIZING -> R.string.navi_status_initializing
-                NavigationStatus.FREE_DRIVE -> R.string.navi_status_free_drive
-                NavigationStatus.ROUTE_DRIVE -> R.string.navi_status_route_drive
-            }
-        )
     }
 
     override fun onCurrentLocation(address: String, latitude: Double, longitude: Double) {
-        // 버튼을 누른 직후 요청한 위치로, 아직 위치가 비어 있는 최근 기록을 채운다
+        petMap.moveToLocation(latitude, longitude)
+
+        // 기록 직후 요청한 위치로, 아직 위치가 비어 있는 최근 기록을 채운다
         val now = System.currentTimeMillis()
         var changed = false
         records.replaceAll { record ->
@@ -183,38 +131,9 @@ class MainActivity : Activity(), NaviManager.Callback {
         }
     }
 
-    override fun onRouteStarted() {
-        ignoreRouteCancelUntil = 0L
-        tripTracker.onRouteStarted(System.currentTimeMillis())
-        updateCheckInSchedule()
-    }
-
-    override fun onRouteCancelled() {
-        if (SystemClock.uptimeMillis() < ignoreRouteCancelUntil) {
-            ignoreRouteCancelUntil = 0L
-            return
-        }
-        // 내비에서 안내를 종료하면 주행도 끝난 것으로 보고 바로 결과를 보여 준다
-        if (!tripTracker.isActive) return
-        tripTracker.endTrip(System.currentTimeMillis())
-        showPendingTripResult()
-    }
-
-    override fun onDestinationArrived(name: String, durationSeconds: Int, distanceMeters: Int) {
-        tripTracker.endTrip(System.currentTimeMillis(), name, durationSeconds, distanceMeters)
-        showPendingTripResult()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        isResumedNow = true
-        // 화면에 없을 때 주행이 끝났다면 다시 보일 때 결과를 보여 준다
-        showPendingTripResult()
-    }
-
-    override fun onPause() {
-        isResumedNow = false
-        super.onPause()
+    private fun startTrip() {
+        tripTracker.startTrip(System.currentTimeMillis())
+        onTripChanged()
     }
 
     private fun confirmEndTrip() {
@@ -223,13 +142,41 @@ class MainActivity : Activity(), NaviManager.Callback {
             .setMessage(R.string.end_trip_message)
             .setPositiveButton(R.string.end_trip_confirm) { _, _ ->
                 tripTracker.endTrip(System.currentTimeMillis())
+                lastRecord.setText(R.string.last_record_empty)
+                onTripChanged()
                 showPendingTripResult()
             }
             .setNegativeButton(R.string.clear_records_cancel, null)
             .show()
     }
 
-    /** 경로 안내로 주행 중이면 15분마다 음성으로 상태를 묻고, 주행이 끝나면 멈춘다. */
+    /** 주행 시작·종료에 맞춰 버튼, 지도, 위치 요청, 음성 질문을 맞춘다. */
+    private fun onTripChanged() {
+        if (tripTracker.isActive) {
+            tripButton.setText(R.string.action_end_trip)
+            tripButton.setOnClickListener { confirmEndTrip() }
+        } else {
+            tripButton.setText(R.string.action_start_trip)
+            tripButton.setOnClickListener { startTrip() }
+        }
+        renderRecords()
+        updateLocationPolling()
+        updateCheckInSchedule()
+    }
+
+    /** 주행 중에는 지도가 차를 따라가도록 현재 위치를 주기적으로 요청한다. */
+    private fun updateLocationPolling() {
+        mainHandler.removeCallbacksAndMessages(LOCATION_TOKEN)
+        if (!tripTracker.isActive || !naviManager.isConnected) return
+        naviManager.requestCurrentLocation()
+        mainHandler.postAtTime(
+            { updateLocationPolling() },
+            LOCATION_TOKEN,
+            SystemClock.uptimeMillis() + LOCATION_POLL_INTERVAL_MS
+        )
+    }
+
+    /** 주행 중이면 15분마다 음성으로 상태를 묻고, 주행이 끝나면 멈춘다. */
     private fun updateCheckInSchedule() {
         if (!tripTracker.isActive) {
             mainHandler.removeCallbacksAndMessages(CHECK_IN_TOKEN)
@@ -251,18 +198,14 @@ class MainActivity : Activity(), NaviManager.Callback {
     }
 
     private fun showPendingTripResult() {
-        // 주행이 끝나면 예약된 질문도 멈춘다
-        updateCheckInSchedule()
         if (!isResumedNow) return
         val result = tripTracker.pendingResult ?: return
         tripTracker.clearPendingResult()
         startActivity(TripSummaryActivity.intent(this, result))
     }
 
-    override fun onEvent(message: String) {
-        events.addFirst("${timeFormat.format(Date())}  $message")
-        while (events.size > MAX_EVENTS) events.removeLast()
-        eventLog.text = events.joinToString("\n")
+    private fun onCheckInEvent(message: String) {
+        locationStatus.text = message
     }
 
     private fun setUpPetRecording() {
@@ -294,13 +237,17 @@ class MainActivity : Activity(), NaviManager.Callback {
 
         findViewById<Button>(R.id.clearRecordsButton).setOnClickListener { confirmClearRecords() }
         findViewById<Button>(R.id.exportRecordsButton).setOnClickListener { exportRecords() }
-        findViewById<Button>(R.id.endTripButton).setOnClickListener { confirmEndTrip() }
-        renderRecords()
     }
 
     private fun recordBehavior(behavior: PetBehavior) {
+        val now = System.currentTimeMillis()
+        // 주행 시작을 누르지 않고 기록해도 이번 주행으로 남긴다
+        if (!tripTracker.isActive) {
+            tripTracker.startTrip(now)
+            onTripChanged()
+        }
         val record = PetRecord(
-            timeMillis = System.currentTimeMillis(),
+            timeMillis = now,
             behavior = behavior,
             naviStatus = currentNaviStatus?.name,
             address = null,
@@ -314,6 +261,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         flashLastRecord()
         renderRecords()
 
+        // 위치가 오면 onCurrentLocation에서 기록에 넣고 지도에 마커를 찍는다
         if (naviManager.isConnected) naviManager.requestCurrentLocation()
     }
 
@@ -327,33 +275,24 @@ class MainActivity : Activity(), NaviManager.Callback {
         )
     }
 
+    /** 이번 주행의 기록만 버튼 횟수, 목록, 지도에 보여 준다. */
     private fun renderRecords() {
-        val counts = records.groupingBy { it.behavior }.eachCount()
+        val tripStart = tripTracker.activeStartMillis
+        val tripRecords = if (tripStart == null) emptyList() else records.filter { it.timeMillis >= tripStart }
+        val counts = tripRecords.groupingBy { it.behavior }.eachCount()
         behaviorButtons.forEach { (behavior, button) ->
             button.text = getString(R.string.behavior_button, getString(behavior.labelRes), counts[behavior] ?: 0)
         }
-        recordCount.text = getString(R.string.record_count, records.size)
-        recordList.text = records.take(MAX_RECORDS_SHOWN).joinToString("\n") { it.toDisplayText() }
+        recordCount.text = getString(R.string.record_count, tripRecords.size)
+        recordList.text = tripRecords.take(MAX_RECORDS_SHOWN).joinToString("\n") { it.toDisplayText() }
+        petMap.showRecords(tripRecords)
     }
 
     private fun PetRecord.toDisplayText(): String = buildString {
         append(timeFormat.format(Date(timeMillis)))
         append("  ")
         append(getString(behavior.labelRes))
-        naviStatusLabel(naviStatus)?.let { append(" · ").append(it) }
         address?.let { append(" · ").append(it) }
-    }
-
-    private fun naviStatusLabel(name: String?): String? {
-        val status = NavigationStatus.entries.firstOrNull { it.name == name } ?: return name
-        return getString(
-            when (status) {
-                NavigationStatus.INACTIVE -> R.string.navi_short_inactive
-                NavigationStatus.INITIALIZING -> R.string.navi_short_initializing
-                NavigationStatus.FREE_DRIVE -> R.string.navi_short_free_drive
-                NavigationStatus.ROUTE_DRIVE -> R.string.navi_short_route_drive
-            }
-        )
     }
 
     private fun confirmClearRecords() {
@@ -394,32 +333,17 @@ class MainActivity : Activity(), NaviManager.Callback {
             .show()
     }
 
-    private fun searchPlace() {
-        val keyword = searchKeyword.text.toString().trim()
-        if (keyword.isEmpty()) {
-            Toast.makeText(this, R.string.toast_empty_keyword, Toast.LENGTH_SHORT).show()
-            return
-        }
-        naviManager.searchPlace(keyword)
-    }
-
-    private fun setNaviButtonsEnabled(enabled: Boolean) {
-        naviButtons.forEach { it.isEnabled = enabled }
-    }
-
     companion object {
-        private const val MAX_EVENTS = 20
-        private const val ROUTE_REPLACE_WINDOW_MS = 5_000L
         private const val MAX_RECORDS_SHOWN = 50
         private const val BEHAVIOR_COLUMNS = 3
         private const val FLASH_DURATION_MS = 1500L
         private const val LOCATION_FILL_WINDOW_MS = 10_000L
-        private val FLASH_TOKEN = Any()
+        private const val LOCATION_POLL_INTERVAL_MS = 5_000L
         private const val CHECK_IN_INTERVAL_MS = 15 * 60 * 1000L
+        private val FLASH_TOKEN = Any()
+        private val LOCATION_TOKEN = Any()
         private val CHECK_IN_TOKEN = Any()
 
-        private const val STATE_EVENTS = "events"
-        private const val STATE_NAVI_STATUS = "naviStatus"
         private const val STATE_LAST_RECORD = "lastRecord"
     }
 }
