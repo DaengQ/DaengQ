@@ -59,4 +59,6 @@ dependencies {
     // TMAP 지도 SDK(V3.8): 공식 배포 zip의 aar와, 공식 샘플의 flatbuffers 의존성
     implementation(files("libs/tmap-sdk-3.8.aar", "libs/vsm-tmap-sdk-v2-eaa-2.0.14.aar"))
     implementation("com.google.flatbuffers:flatbuffers-java:24.3.25")
+    // 강아지 소리 분류: MediaPipe Audio Classifier와 assets의 YAMNet 모델
+    implementation("com.google.mediapipe:tasks-audio:1.2.2")
 }

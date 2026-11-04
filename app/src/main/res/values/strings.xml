@@ -16,6 +16,12 @@ local.properties에 TMAP_APP_KEY를 넣어 주세요.</string>
     <string name="behavior_sleeping">잠</string>
     <string name="behavior_toilet">배변 신호</string>
     <string name="behavior_excited">흥분</string>
+    <string name="behavior_howling">하울링</string>
+    <string name="behavior_growling">으르렁</string>
+    <string name="behavior_dog_sound">강아지 소리</string>
+    <string name="marker_howling">하울링</string>
+    <string name="marker_growling">으르렁</string>
+    <string name="marker_dog_sound">강아지</string>
     <string name="marker_barking">짖음</string>
     <string name="marker_whining">낑낑</string>
     <string name="marker_carsick">멀미</string>
@@ -44,6 +50,20 @@ local.properties에 TMAP_APP_KEY를 넣어 주세요.</string>
     <string name="check_in_give_up">다음에 다시 물어볼게요</string>
     <string name="check_in_heard">음성 대답: %1$s</string>
     <string name="voice_error">음성 안내 오류: %1$s</string>
+
+    <string name="sound_off">주행을 시작하면 강아지 소리를 감지해요</string>
+    <string name="sound_listening">강아지 소리 감지 중</string>
+    <string name="sound_paused">음성 안내 중이라 소리 감지를 잠시 멈췄어요</string>
+    <string name="sound_no_permission">마이크 권한이 없어 소리를 감지할 수 없어요</string>
+    <string name="sound_error">소리 감지 오류: %1$s</string>
+    <string name="sound_alert_barking">%1$s가 짖고 있어요</string>
+    <string name="sound_alert_whining">%1$s가 낑낑거려요</string>
+    <string name="sound_alert_howling">%1$s가 하울링하고 있어요</string>
+    <string name="sound_alert_growling">%1$s가 으르렁거려요</string>
+    <string name="sound_alert_dog_sound">%1$s 소리가 들려요</string>
+    <string name="last_record_detected">%1$s  %2$s 감지</string>
+    <string name="record_detected">%1$s (소리 감지)</string>
+    <string name="record_detected_short">소리 감지</string>
 
     <string name="action_start_trip">주행 시작</string>
     <string name="action_end_trip">주행 종료</string>

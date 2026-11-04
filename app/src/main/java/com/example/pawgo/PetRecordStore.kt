@@ -39,6 +39,7 @@ class PetRecordStore(context: Context) {
         put("address", address ?: JSONObject.NULL)
         put("latitude", latitude ?: JSONObject.NULL)
         put("longitude", longitude ?: JSONObject.NULL)
+        put("detected", detected)
     }
 
     private fun JSONObject.toRecord() = PetRecord(
@@ -48,6 +49,7 @@ class PetRecordStore(context: Context) {
         address = optStringOrNull("address"),
         latitude = optDoubleOrNull("latitude"),
         longitude = optDoubleOrNull("longitude"),
+        detected = optBoolean("detected", false),
     )
 
     // isNull은 키가 없을 때도 true라서 좌표가 없던 예전 기록도 그대로 읽힌다

@@ -1,8 +1,10 @@
 package com.example.pawgo
 
 import ai.pleos.playground.navi.constants.NavigationStatus
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -23,12 +25,17 @@ class MainActivity : Activity(), NaviManager.Callback {
     private lateinit var naviManager: NaviManager
     private lateinit var petCheckIn: PetCheckIn
     private lateinit var petMap: PetMap
+    private lateinit var soundDetector: PetSoundDetector
+    private val soundFilter = PetSoundFilter()
     private lateinit var recordStore: PetRecordStore
     private lateinit var tripTracker: TripTracker
     private var isResumedNow = false
     private var isCheckInScheduled = false
+    private var isMicPermissionRequested = false
+    private var soundError: String? = null
 
     private lateinit var locationStatus: TextView
+    private lateinit var soundStatus: TextView
     private lateinit var tripButton: Button
     private lateinit var lastRecord: TextView
     private lateinit var recordCount: TextView
@@ -50,6 +57,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         records = recordStore.load()
         tripTracker = TripTracker(this)
         locationStatus = findViewById(R.id.locationStatus)
+        soundStatus = findViewById(R.id.soundStatus)
         tripButton = findViewById(R.id.tripButton)
         petMap = PetMap(findViewById<FrameLayout>(R.id.mapContainer))
         setUpPetRecording()
@@ -60,8 +68,14 @@ class MainActivity : Activity(), NaviManager.Callback {
         naviManager = NaviManager(this, this)
         naviManager.connect()
 
-        petCheckIn = PetCheckIn(this, onRecorded = ::recordBehavior, onEvent = ::onCheckInEvent)
+        petCheckIn = PetCheckIn(
+            this,
+            onRecorded = { recordBehavior(it) },
+            onEvent = ::onCheckInEvent,
+            onBusyChanged = ::updateSoundDetection,
+        )
         petCheckIn.connect()
+        soundDetector = PetSoundDetector(this, ::onSoundDetected, ::onSoundError)
         onTripChanged()
     }
 
@@ -72,6 +86,7 @@ class MainActivity : Activity(), NaviManager.Callback {
 
     override fun onDestroy() {
         mainHandler.removeCallbacksAndMessages(null)
+        soundDetector.stop()
         naviManager.release()
         petCheckIn.release()
         petMap.release()
@@ -84,10 +99,12 @@ class MainActivity : Activity(), NaviManager.Callback {
         petMap.onResume()
         // 화면에 없을 때 주행이 끝났다면 다시 보일 때 결과를 보여 준다
         showPendingTripResult()
+        updateSoundDetection()
     }
 
     override fun onPause() {
         isResumedNow = false
+        updateSoundDetection()
         petMap.onPause()
         super.onPause()
     }
@@ -162,6 +179,55 @@ class MainActivity : Activity(), NaviManager.Callback {
         renderRecords()
         updateLocationPolling()
         updateCheckInSchedule()
+        updateSoundDetection()
+    }
+
+    /** 주행 중이고 화면에 보이는 동안 소리를 감지한다. 앱이 말하거나 듣는 동안에는 잠시 멈춘다. */
+    private fun updateSoundDetection() {
+        val tripActive = tripTracker.isActive
+        if (tripActive && !hasMicPermission()) {
+            soundDetector.stop()
+            soundStatus.setText(R.string.sound_no_permission)
+            if (isResumedNow && !isMicPermissionRequested) {
+                isMicPermissionRequested = true
+                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_MIC)
+            }
+            return
+        }
+        val error = soundError
+        if (tripActive && isResumedNow && !petCheckIn.isBusy && error == null) {
+            soundDetector.start()
+        } else {
+            soundDetector.stop()
+        }
+        soundStatus.text = when {
+            error != null -> getString(R.string.sound_error, error)
+            !tripActive -> getString(R.string.sound_off)
+            petCheckIn.isBusy -> getString(R.string.sound_paused)
+            else -> getString(R.string.sound_listening)
+        }
+    }
+
+    private fun hasMicPermission() =
+        checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_MIC) updateSoundDetection()
+    }
+
+    private fun onSoundDetected(behavior: PetBehavior) {
+        if (!tripTracker.isActive) return
+        val decision = soundFilter.onDetected(behavior, SystemClock.uptimeMillis())
+        if (decision.record) recordBehavior(behavior, detected = true)
+        if (decision.alert) {
+            behavior.soundAlertRes?.let { petCheckIn.announce(getString(it, getString(R.string.pet_name))) }
+        }
+    }
+
+    private fun onSoundError(message: String) {
+        soundError = message
+        updateSoundDetection()
     }
 
     /** 주행 중에는 지도가 차를 따라가도록 현재 위치를 주기적으로 요청한다. */
@@ -216,7 +282,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         val container = findViewById<LinearLayout>(R.id.behaviorButtons)
         val buttonHeight = resources.getDimensionPixelSize(R.dimen.behavior_button_height)
         val gap = resources.getDimensionPixelSize(R.dimen.behavior_button_gap)
-        PetBehavior.entries.chunked(BEHAVIOR_COLUMNS).forEachIndexed { rowIndex, rowBehaviors ->
+        PetBehavior.entries.filter { it.hasButton }.chunked(BEHAVIOR_COLUMNS).forEachIndexed { rowIndex, rowBehaviors ->
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
             rowBehaviors.forEachIndexed { columnIndex, behavior ->
                 val button = Button(this).apply {
@@ -239,7 +305,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         findViewById<Button>(R.id.exportRecordsButton).setOnClickListener { exportRecords() }
     }
 
-    private fun recordBehavior(behavior: PetBehavior) {
+    private fun recordBehavior(behavior: PetBehavior, detected: Boolean = false) {
         val now = System.currentTimeMillis()
         // 주행 시작을 누르지 않고 기록해도 이번 주행으로 남긴다
         if (!tripTracker.isActive) {
@@ -251,12 +317,15 @@ class MainActivity : Activity(), NaviManager.Callback {
             behavior = behavior,
             naviStatus = currentNaviStatus?.name,
             address = null,
+            detected = detected,
         )
         records.add(0, record)
         recordStore.save(records)
 
         lastRecord.text = getString(
-            R.string.last_record, timeFormat.format(Date(record.timeMillis)), getString(behavior.labelRes)
+            if (detected) R.string.last_record_detected else R.string.last_record,
+            timeFormat.format(Date(record.timeMillis)),
+            getString(behavior.labelRes)
         )
         flashLastRecord()
         renderRecords()
@@ -292,6 +361,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         append(timeFormat.format(Date(timeMillis)))
         append("  ")
         append(getString(behavior.labelRes))
+        if (detected) append(" · ").append(getString(R.string.record_detected_short))
         address?.let { append(" · ").append(it) }
     }
 
@@ -344,6 +414,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         private val LOCATION_TOKEN = Any()
         private val CHECK_IN_TOKEN = Any()
 
+        private const val REQUEST_MIC = 1
         private const val STATE_LAST_RECORD = "lastRecord"
     }
 }

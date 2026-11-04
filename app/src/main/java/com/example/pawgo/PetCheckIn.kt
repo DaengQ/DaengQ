@@ -11,14 +11,21 @@ class PetCheckIn(
     private val context: Context,
     private val onRecorded: (PetBehavior) -> Unit,
     private val onEvent: (String) -> Unit,
+    private val onBusyChanged: () -> Unit,
 ) {
 
+    /** 말하거나 듣는 동안 [isBusy]가 true다. 앱의 음성이 소리 감지에 잡히지 않도록 그동안 감지를 멈춘다. */
     private enum class Step { IDLE, ASKING, CLOSING }
 
     private val voice = PetVoice(context, ::onSpeechDone) { error -> reportError(error) }
     private val ears = PetEars(context) { error -> reportError(error) }
 
     private var step = Step.IDLE
+        set(value) {
+            val wasBusy = field != Step.IDLE
+            field = value
+            if (wasBusy != (value != Step.IDLE)) onBusyChanged()
+        }
     private var attempt = 0
 
     val isBusy: Boolean
@@ -34,6 +41,13 @@ class PetCheckIn(
         if (isBusy || !voice.isReady || !ears.isReady) return false
         attempt = 1
         say(Step.ASKING, context.getString(R.string.check_in_question, petName()))
+        return true
+    }
+
+    /** 한 문장을 읽어 준다. 대화 중이거나 음성 엔진이 준비되지 않았으면 false. */
+    fun announce(text: String): Boolean {
+        if (isBusy || !voice.isReady) return false
+        say(Step.CLOSING, text)
         return true
     }
 

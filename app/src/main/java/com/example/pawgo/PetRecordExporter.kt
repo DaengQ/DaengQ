@@ -47,6 +47,7 @@ class PetRecordExporter(private val context: Context) {
             .put("label", context.getString(behavior.labelRes))
             .put("naviStatus", naviStatus ?: JSONObject.NULL)
             .put("address", address ?: JSONObject.NULL)
+            .put("detected", detected)
         return JSONObject()
             .put("type", "Feature")
             .put("geometry", geometry)

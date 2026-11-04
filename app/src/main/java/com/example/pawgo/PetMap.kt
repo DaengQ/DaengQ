@@ -176,7 +176,11 @@ class PetMap(private val container: FrameLayout) {
             icon = markerIcons.getOrPut(record.behavior) { drawMarkerIcon(record.behavior) }
             setPosition(0.5f, 1.0f)
             setTMapPoint(record.latitude!!, record.longitude!!)
-            calloutTitle = context.getString(record.behavior.labelRes)
+            calloutTitle = if (record.detected) {
+                context.getString(R.string.record_detected, context.getString(record.behavior.labelRes))
+            } else {
+                context.getString(record.behavior.labelRes)
+            }
             calloutSubTitle = timeFormat.format(Date(record.timeMillis))
             canShowCallout = true
         }

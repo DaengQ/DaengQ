@@ -15,5 +15,8 @@
     <color name="marker_sleeping">#FF1E88E5</color>
     <color name="marker_toilet">#FF6D4C41</color>
     <color name="marker_excited">#FFEF6C00</color>
+    <color name="marker_howling">#FF00838F</color>
+    <color name="marker_growling">#FF37474F</color>
+    <color name="marker_dog_sound">#FF827717</color>
     <color name="location_icon">#FF1565C0</color>
 </resources>

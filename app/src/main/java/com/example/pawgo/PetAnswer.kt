@@ -12,6 +12,8 @@ sealed interface PetAnswer {
             PetBehavior.CARSICK to listOf("멀미", "토해", "토했", "구토", "토할"),
             PetBehavior.TOILET to listOf("쉬", "똥", "오줌", "화장실", "배변"),
             PetBehavior.BARKING to listOf("짖"),
+            PetBehavior.GROWLING to listOf("으르렁"),
+            PetBehavior.HOWLING to listOf("하울링"),
             PetBehavior.WHINING to listOf("낑낑", "불안", "떨", "울어", "울고"),
             PetBehavior.EXCITED to listOf("흥분", "신나", "신났", "날뛰"),
             PetBehavior.SLEEPING to listOf("자요", "자고", "잔다", "잠", "졸"),

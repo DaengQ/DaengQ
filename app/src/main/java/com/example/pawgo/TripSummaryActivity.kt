@@ -98,6 +98,7 @@ class TripSummaryActivity : Activity() {
                 append(timeFormat.format(Date(record.timeMillis)))
                 append(" (+").append((record.timeMillis - startMillis) / 60_000).append("분)")
                 append("  ").append(getString(record.behavior.labelRes))
+                if (record.detected) append(" · ").append(getString(R.string.record_detected_short))
                 record.address?.let { append(" · ").append(it) }
             }
         }
