@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    주행 결과(PRD 화면 6). 지도 위에 뜬 패널로 주행 화면과 같은 틀을 쓴다.
+    제목, 한 줄 요약, 종류별 횟수, 발성 기록(누르면 그 자리에서 고친다), 가장 잦았던 때와 시간대별 막대.
+    아래 버튼은 스크롤과 상관없이 항상 보인다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_drive_panel"
+    android:elevation="8dp"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tripTitle"
+                style="@style/Text.Daengq.H2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <TextView
+                style="@style/Text.Daengq.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineHeight="38sp"
+                android:text="@string/trip_subtitle"
+                android:textColor="@color/fg_muted"
+                android:textSize="28sp" />
+
+            <include
+                android:id="@+id/tripHighlight"
+                layout="@layout/highlight_tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp" />
+
+            <TextView
+                android:id="@+id/tripNoLocation"
+                style="@style/Text.Daengq.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <!-- 종류별 횟수. 코드에서 세 칸과 사이 구분선을 채운다 -->
+            <LinearLayout
+                android:id="@+id/tripCounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" />
+
+            <!-- 발성 기록. 누른 기록 아래에 종류 바꾸기·삭제 버튼이 열린다 -->
+            <LinearLayout
+                android:id="@+id/tripRecordsSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:background="@drawable/bg_drive_card"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingTop="24dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    style="@style/Text.Daengq.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/trip_section_records"
+                    android:textColor="@color/fg_muted"
+                    android:textFontWeight="600" />
+
+                <LinearLayout
+                    android:id="@+id/tripRecords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tripTimelineSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include
+                    android:id="@+id/tripPeak"
+                    layout="@layout/highlight_tag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_drive_card"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        style="@style/Text.Daengq.Body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trip_section_timeline"
+                        android:textColor="@color/fg_muted"
+                        android:textFontWeight="600" />
+
+                    <com.example.pawgo.TimelineChartView
+                        android:id="@+id/tripTimeline"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginTop="12dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/tripExportButton"
+            style="@style/Button.Daengq.Secondary"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/action_export_records" />
+
+        <Button
+            android:id="@+id/tripCloseButton"
+            style="@style/Button.Daengq.Strong"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/trip_close" />
+    </LinearLayout>
+</LinearLayout>

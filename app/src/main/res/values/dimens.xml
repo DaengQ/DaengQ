@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 크기는 IVI 디자인 기준 px이고, Pleos Connect 화면 밀도(160)에서는 1px = 1dp다 -->
 <resources>
-    <dimen name="behavior_button_height">120dp</dimen>
-    <dimen name="behavior_button_gap">12dp</dimen>
+    <!-- 주행 화면 기록 패널 폭(시안 1700px 중 640px) -->
+    <dimen name="drive_panel_width">640dp</dimen>
+    <dimen name="drive_panel_margin">24dp</dimen>
+    <dimen name="button_gap">12dp</dimen>
+    <!-- 기록 고치기 버튼(울음·낑낑·하울링·삭제) 높이 -->
+    <dimen name="choice_button_height">64dp</dimen>
+    <dimen name="dot_size">16dp</dimen>
+    <!-- 시작 화면: 버튼 두 개가 각 576dp가 되도록 양옆 262dp를 비운다 -->
+    <dimen name="hero_side_padding">262dp</dimen>
+    <dimen name="hero_bottom_padding">200dp</dimen>
+    <dimen name="hero_button_height">100dp</dimen>
+    <dimen name="hero_button_gap">24dp</dimen>
+    <dimen name="hero_mascot_max">640dp</dimen>
+    <dimen name="hero_name_top">200dp</dimen>
+    <!-- 결과 화면 한 줄 요약 꼬리표(요약.svg 576x70): 마스코트 82x70, 꼬리표는 마스코트 왼쪽 37 지점부터 -->
+    <dimen name="highlight_height">70dp</dimen>
+    <dimen name="highlight_mascot_width">82dp</dimen>
+    <dimen name="highlight_mascot_overlap">37dp</dimen>
+    <dimen name="highlight_text_start">61dp</dimen>
 </resources>

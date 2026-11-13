@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    결과 화면 꼬리표 앞의 마스코트(요약.svg). 초록 둥근 삼각형에 흰 눈, 진한 코와 작은 두 눈.
+    원본 576x70에서 마스코트가 있는 가로 0~82만 잘라 쓴다.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="82dp"
+    android:height="70dp"
+    android:viewportWidth="82"
+    android:viewportHeight="70">
+    <path
+        android:fillColor="@color/brand_primary"
+        android:pathData="M58.124,59.5087C50.4035,72.7227 31.3075,72.7227 23.5869,59.5087L6.43584,30.1539C-1.35426,16.8209 8.26234,0.0644531 23.7044,0.0644531H58.0066C73.4486,0.0644531 83.0652,16.8209 75.2751,30.1539L58.124,59.5087Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M40.6055,20.1295a16.7838,16.7838 0 1,0 33.5676,0a16.7838,16.7838 0 1,0 -33.5676,0Z" />
+    <path
+        android:fillColor="#FF002805"
+        android:pathData="M17.7444,21.4209C16.6169,22.7227 14.5974,22.7227 13.47,21.4209L9.96836,17.3775C8.38266,15.5465 9.68331,12.6995 12.1055,12.6995L19.1089,12.6995C21.5311,12.6995 22.8317,15.5465 21.246,17.3775L17.7444,21.4209Z" />
+    <path
+        android:pathData="M15.6072,21.0906L15.6072,30.415"
+        android:strokeWidth="1.86486"
+        android:strokeColor="#FF002805"
+        android:strokeLineCap="round" />
+    <path
+        android:fillColor="#FF002805"
+        android:pathData="M19.3471,7.0856a1.8649,1.8649 0 1,0 3.7298,0a1.8649,1.8649 0 1,0 -3.7298,0Z" />
+    <path
+        android:fillColor="#FF002805"
+        android:pathData="M26.8066,7.0856a1.8649,1.8649 0 1,0 3.7298,0a1.8649,1.8649 0 1,0 -3.7298,0Z" />
+</vector>

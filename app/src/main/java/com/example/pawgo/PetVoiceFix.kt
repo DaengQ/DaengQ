@@ -3,14 +3,18 @@ package com.example.pawgo
 import android.content.Context
 
 /**
- * 음성으로 반려동물 상태를 묻고, 대답을 행동 기록으로 바꾼다.
+ * 음성 안내와 '말로 고치기'를 맡는다.
  *
- * 질문 → (다 읽으면) 듣기 → 해석 → 확인 한마디. 알아듣지 못하면 한 번만 다시 묻는다.
+ * 말로 고치기: "네, 어떻게 고칠까요?" → (다 읽으면) 듣기 → 해석 → 결과 한마디.
+ * 8초 동안 말이 없거나 알아듣지 못하면 한 번 더 묻고, 그래도 안 되면 버튼으로 고치라고 안내한다.
  */
-class PetCheckIn(
+class PetVoiceFix(
     private val context: Context,
-    private val onRecorded: (PetBehavior) -> Unit,
-    private val onEvent: (String) -> Unit,
+    /** 해석한 명령을 기록에 반영하고, 운전자에게 읽어 줄 결과 문장을 돌려준다. */
+    private val onCommand: (PetCommand) -> String,
+    /** 들은 말(못 들었으면 null)을 화면에 잠깐 보여 준다. */
+    private val onHeard: (String?) -> Unit,
+    private val onError: (String) -> Unit,
     private val onBusyChanged: () -> Unit,
 ) {
 
@@ -36,11 +40,11 @@ class PetCheckIn(
         ears.connect()
     }
 
-    /** 상태를 묻는다. 이미 대화 중이거나 음성 엔진이 준비되지 않았으면 false. */
-    fun ask(): Boolean {
+    /** 어떻게 고칠지 묻고 듣는다. 이미 대화 중이거나 음성 엔진이 준비되지 않았으면 false. */
+    fun start(): Boolean {
         if (isBusy || !voice.isReady || !ears.isReady) return false
         attempt = 1
-        say(Step.ASKING, context.getString(R.string.check_in_question, petName()))
+        say(Step.ASKING, context.getString(R.string.voice_fix_question))
         return true
     }
 
@@ -73,21 +77,15 @@ class PetCheckIn(
 
     private fun onAnswer(text: String?) {
         if (step != Step.ASKING) return
-        onEvent(context.getString(R.string.check_in_heard, text ?: "-"))
-        when (val answer = text?.let { PetAnswer.parse(it) } ?: PetAnswer.Unknown) {
-            is PetAnswer.Behavior -> {
-                onRecorded(answer.behavior)
-                say(Step.CLOSING, context.getString(R.string.check_in_recorded, context.getString(answer.behavior.labelRes)))
-            }
-            PetAnswer.Fine -> say(Step.CLOSING, context.getString(R.string.check_in_fine))
-            PetAnswer.Unknown -> {
-                if (attempt < MAX_ATTEMPTS) {
-                    attempt++
-                    say(Step.ASKING, context.getString(R.string.check_in_retry))
-                } else {
-                    say(Step.CLOSING, context.getString(R.string.check_in_give_up))
-                }
-            }
+        onHeard(text)
+        val command = text?.let { PetCommand.parse(it) } ?: PetCommand.Unknown
+        if (command != PetCommand.Unknown) {
+            say(Step.CLOSING, onCommand(command))
+        } else if (attempt < MAX_ATTEMPTS) {
+            attempt++
+            say(Step.ASKING, context.getString(R.string.voice_fix_retry))
+        } else {
+            say(Step.CLOSING, context.getString(R.string.voice_fix_give_up))
         }
     }
 
@@ -97,12 +95,10 @@ class PetCheckIn(
     }
 
     private fun reportError(error: String) {
-        onEvent(context.getString(R.string.voice_error, error))
-        // 음성 엔진 오류로 대화가 멈추면 다음 질문을 할 수 있도록 풀어 둔다
+        onError(error)
+        // 음성 엔진 오류로 대화가 멈추면 다시 시작할 수 있도록 풀어 둔다
         step = Step.IDLE
     }
-
-    private fun petName(): String = context.getString(R.string.pet_name)
 
     companion object {
         private const val MAX_ATTEMPTS = 2

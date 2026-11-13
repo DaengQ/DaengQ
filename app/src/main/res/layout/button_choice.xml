@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 코드에서 만드는 선택 버튼(최근 기록의 종류 바꾸기·삭제). 고른 종류는 코드에서 그 종류 색으로 칠한다 -->
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Button.Daengq.Choice"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:maxLines="1"
+    android:textFontWeight="700"
+    android:textStyle="bold" />

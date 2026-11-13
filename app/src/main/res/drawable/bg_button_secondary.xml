@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 보조 버튼. 누르면 서브 배경으로 바뀐다 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="@color/bg_sub" />
+            <stroke android:width="2dp" android:color="@color/border_default" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/bg_sub" />
+            <stroke android:width="2dp" android:color="@color/border_control" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@color/bg_surface" />
+            <stroke android:width="2dp" android:color="@color/border_control" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</selector>

@@ -1,109 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 세로 창: 위쪽 지도, 아래쪽 행동 기록 -->
+<!-- 세로 창(내비와 나란히 쓸 때): 위쪽 지도와 말하기 버튼, 아래쪽 기록 패널 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/mapContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="2">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
-
-        <LinearLayout
+        <FrameLayout
+            android:id="@+id/mapContainer"
             android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            layout="@layout/voice_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:layout_gravity="bottom|start"
+            android:layout_margin="24dp" />
+    </FrameLayout>
 
-            <TextView
-                android:id="@+id/locationStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/location_connecting"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/soundStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sound_off"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/lastRecord"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@color/last_record_idle"
-                android:gravity="center"
-                android:minHeight="88dp"
-                android:padding="16dp"
-                android:text="@string/last_record_empty"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/behaviorButtons"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical" />
-
-            <Button
-                android:id="@+id/tripButton"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginTop="12dp"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/recordCount"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/exportRecordsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="64dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/action_export_records"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/clearRecordsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="64dp"
-                    android:text="@string/action_clear_records"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/recordList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:lineSpacingExtra="4dp"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-    </ScrollView>
+    <include
+        layout="@layout/panel_driving"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="24dp"
+        android:layout_weight="3" />
 </LinearLayout>

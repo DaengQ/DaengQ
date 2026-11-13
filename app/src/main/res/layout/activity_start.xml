@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    시작 화면(PRD 화면 1~3): 강아지 선택, 이름 입력, 첫 주행 질문, 적응 타이머.
+    세 단계가 같은 틀(마스코트, 제목, 버튼 줄)을 쓰고 StartActivity가 내용만 바꾼다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_hero"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/hero_side_padding"
+    android:paddingEnd="@dimen/hero_side_padding"
+    android:paddingBottom="@dimen/hero_bottom_padding">
+
+    <!-- 이름 입력 때만: 마스코트를 빼고 제목을 위로 올려 아래를 키보드에 내준다 -->
+    <Space
+        android:id="@+id/heroTopSpace"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hero_name_top"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/heroMascotFrame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/heroMascot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:adjustViewBounds="true"
+            android:importantForAccessibility="no"
+            android:maxWidth="@dimen/hero_mascot_max"
+            android:maxHeight="@dimen/hero_mascot_max"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mascot" />
+
+        <!-- 적응 타이머 단계에서만 마스코트 대신 보인다 -->
+        <com.example.pawgo.AdaptTimerView
+            android:id="@+id/heroGauge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:importantForAccessibility="no"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/heroTitle"
+        style="@style/Text.Daengq.Hero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" />
+
+    <!-- 이름 입력: "오늘은 [누구]와 달려볼까요?"의 빈칸에 바로 쓴다. 제목 대신 보인다 -->
+    <LinearLayout
+        android:id="@+id/heroNameRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            style="@style/Text.Daengq.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start_name_prefix" />
+
+        <EditText
+            android:id="@+id/heroInput"
+            style="@style/Text.Daengq.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autofillHints="name"
+            android:background="@null"
+            android:hint="@string/start_select_placeholder"
+            android:imeOptions="actionDone|flagNoExtractUi|flagNoFullscreen"
+            android:inputType="textPersonName"
+            android:maxLength="8"
+            android:padding="0dp"
+            android:singleLine="true"
+            android:textColor="@color/hero_name"
+            android:textColorHint="@color/hero_name_hint"
+            android:textCursorDrawable="@drawable/cursor_hero" />
+
+        <TextView
+            android:id="@+id/heroNameSuffix"
+            style="@style/Text.Daengq.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/heroButtons"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hero_button_height"
+        android:layout_marginTop="64dp"
+        android:orientation="horizontal" />
+</LinearLayout>

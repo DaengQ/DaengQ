@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 이름 빈칸의 커서: 브랜드 초록 세로줄 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/brand_primary" />
+    <size android:width="4dp" />
+</shape>

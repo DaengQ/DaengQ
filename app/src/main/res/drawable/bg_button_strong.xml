@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 주행 시작·종료 버튼. 글자색 반전 배경이라 다크 테마에서는 밝아진다 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape><solid android:color="@color/fg_body" /><corners android:radius="24dp" /></shape>
+    </item>
+    <item>
+        <shape><solid android:color="@color/fg_strong" /><corners android:radius="24dp" /></shape>
+    </item>
+</selector>

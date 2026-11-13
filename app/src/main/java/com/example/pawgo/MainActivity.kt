@@ -9,40 +9,46 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
-/** 주행 화면. 지도를 보여 주고, 버튼이나 음성으로 남긴 기록을 바로 지도에 표시한다. */
+/**
+ * 주행 화면(PRD 화면 5). 지도 위에 기록 패널(종류별 횟수, 최근 기록 고치기, 지난 기록, 주행 종료)과
+ * 말하기 버튼을 띄운다. 강아지 소리는 자동으로 감지해 기록하고 음성으로 알린다.
+ * 직접 기록과 고치기는 말하기 버튼으로 말로 한다.
+ */
 class MainActivity : Activity(), NaviManager.Callback {
 
     private lateinit var naviManager: NaviManager
-    private lateinit var petCheckIn: PetCheckIn
+    private lateinit var voiceFix: PetVoiceFix
     private lateinit var petMap: PetMap
     private lateinit var soundDetector: PetSoundDetector
     private val soundFilter = PetSoundFilter()
     private lateinit var recordStore: PetRecordStore
     private lateinit var tripTracker: TripTracker
+    private lateinit var routeStore: RouteStore
+    /** 진행 중인 주행의 지나온 길. */
+    private var route = mutableListOf<RoutePoint>()
     private var isResumedNow = false
-    private var isCheckInScheduled = false
     private var isMicPermissionRequested = false
     private var soundError: String? = null
 
-    private lateinit var locationStatus: TextView
+    private lateinit var driveTitle: TextView
+    private lateinit var driveAlert: TextView
     private lateinit var soundStatus: TextView
     private lateinit var tripButton: Button
-    private lateinit var lastRecord: TextView
-    private lateinit var recordCount: TextView
-    private lateinit var recordList: TextView
-    private val behaviorButtons = mutableMapOf<PetBehavior, Button>()
+    private lateinit var latestRecord: View
+    private lateinit var latestRecordEmpty: View
+    private lateinit var latestRecordActions: LinearLayout
+    private lateinit var olderRecords: LinearLayout
+    private lateinit var voiceTip: View
+    private lateinit var voiceTipText: TextView
+    private lateinit var countViews: Map<PetBehavior, TextView>
+    private lateinit var latestChoices: RecordChoiceRow
 
-    private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private val mainHandler = Handler(Looper.getMainLooper())
 
     /** 최신순 기록. */
@@ -56,39 +62,54 @@ class MainActivity : Activity(), NaviManager.Callback {
         recordStore = PetRecordStore(this)
         records = recordStore.load()
         tripTracker = TripTracker(this)
-        locationStatus = findViewById(R.id.locationStatus)
+        routeStore = RouteStore(this)
+        routeStore.prune(System.currentTimeMillis() - ROUTE_KEEP_MS)
+        driveTitle = findViewById(R.id.driveTitle)
+        driveAlert = findViewById(R.id.driveAlert)
         soundStatus = findViewById(R.id.soundStatus)
         tripButton = findViewById(R.id.tripButton)
+        latestRecord = findViewById(R.id.latestRecord)
+        latestRecordEmpty = findViewById(R.id.latestRecordEmpty)
+        latestRecordActions = findViewById(R.id.latestRecordActions)
+        olderRecords = findViewById(R.id.olderRecords)
+        voiceTip = findViewById(R.id.voiceTip)
+        voiceTipText = findViewById(R.id.voiceTipText)
         petMap = PetMap(findViewById<FrameLayout>(R.id.mapContainer))
-        setUpPetRecording()
-
-        // 창 분할·크기 변경으로 화면이 다시 만들어져도 보던 상태를 이어서 보여 준다
-        savedInstanceState?.getCharSequence(STATE_LAST_RECORD)?.let { lastRecord.text = it }
+        countViews = buildCountColumns(findViewById(R.id.driveCounts))
+        latestChoices = RecordChoiceRow(
+            this,
+            latestRecordActions,
+            onType = { behavior -> latestTripRecord()?.let { changeRecord(it, behavior) } },
+            onDelete = { latestTripRecord()?.let { deleteRecord(it) } },
+        )
 
         naviManager = NaviManager(this, this)
         naviManager.connect()
 
-        petCheckIn = PetCheckIn(
+        voiceFix = PetVoiceFix(
             this,
-            onRecorded = { recordBehavior(it) },
-            onEvent = ::onCheckInEvent,
+            onCommand = ::applyCommand,
+            onHeard = ::showHeard,
+            onError = { showAlert(getString(R.string.voice_error, it)) },
             onBusyChanged = ::updateSoundDetection,
         )
-        petCheckIn.connect()
+        voiceFix.connect()
+        findViewById<View>(R.id.voiceFixButton).setOnClickListener {
+            hideVoiceTip()
+            voiceFix.start()
+        }
+
         soundDetector = PetSoundDetector(this, ::onSoundDetected, ::onSoundError)
         onTripChanged()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putCharSequence(STATE_LAST_RECORD, lastRecord.text)
+        // 말하기 버튼이 무엇인지 처음에 잠깐 알려 준다
+        showVoiceTip(getString(R.string.voice_tip))
     }
 
     override fun onDestroy() {
         mainHandler.removeCallbacksAndMessages(null)
         soundDetector.stop()
         naviManager.release()
-        petCheckIn.release()
+        voiceFix.release()
         petMap.release()
         super.onDestroy()
     }
@@ -96,6 +117,9 @@ class MainActivity : Activity(), NaviManager.Callback {
     override fun onResume() {
         super.onResume()
         isResumedNow = true
+        // 결과 화면에서 기록을 고쳤을 수 있으니 다시 읽는다
+        records = recordStore.load()
+        renderRecords()
         petMap.onResume()
         // 화면에 없을 때 주행이 끝났다면 다시 보일 때 결과를 보여 준다
         showPendingTripResult()
@@ -110,14 +134,14 @@ class MainActivity : Activity(), NaviManager.Callback {
     }
 
     override fun onConnected() {
-        locationStatus.text = getString(R.string.location_connected)
+        driveAlert.visibility = View.GONE
         // 주행 전에도 지도가 현재 위치를 보여 주도록 한 번 요청한다
         naviManager.requestCurrentLocation()
         updateLocationPolling()
     }
 
     override fun onConnectionFailed(throwable: Throwable) {
-        locationStatus.text = getString(R.string.location_failed, throwable.message.orEmpty())
+        showAlert(getString(R.string.location_failed, throwable.message.orEmpty()))
     }
 
     override fun onNavigationStatus(status: NavigationStatus) {
@@ -126,6 +150,16 @@ class MainActivity : Activity(), NaviManager.Callback {
 
     override fun onCurrentLocation(address: String, latitude: Double, longitude: Double) {
         petMap.moveToLocation(latitude, longitude)
+        // 주행 중 처음 받은 위치가 출발 지점이고, 받은 위치를 이어 지나온 길을 그린다
+        tripTracker.recordStartLocation(latitude, longitude)
+        showStartPoint()
+        if (tripTracker.isActive) {
+            val point = RoutePoint(System.currentTimeMillis(), latitude, longitude)
+            if (routeStore.add(point)) {
+                route.add(point)
+                petMap.showRoute(route.toList())
+            }
+        }
 
         // 기록 직후 요청한 위치로, 아직 위치가 비어 있는 최근 기록을 채운다
         val now = System.currentTimeMillis()
@@ -159,27 +193,43 @@ class MainActivity : Activity(), NaviManager.Callback {
             .setMessage(R.string.end_trip_message)
             .setPositiveButton(R.string.end_trip_confirm) { _, _ ->
                 tripTracker.endTrip(System.currentTimeMillis())
-                lastRecord.setText(R.string.last_record_empty)
                 onTripChanged()
                 showPendingTripResult()
             }
-            .setNegativeButton(R.string.clear_records_cancel, null)
+            .setNegativeButton(R.string.dialog_cancel, null)
             .show()
     }
 
-    /** 주행 시작·종료에 맞춰 버튼, 지도, 위치 요청, 음성 질문을 맞춘다. */
+    /** 주행 시작·완료에 맞춰 제목, 버튼, 지도, 위치 요청, 소리 감지를 맞춘다. */
     private fun onTripChanged() {
+        // 받침 있는 이름은 '이'를 붙여 부른다. 예: 봄이와 드라이브중...
+        val name = petName().withCallingI()
+        driveTitle.text = getString(
+            if (tripTracker.isActive) R.string.drive_title_active else R.string.drive_title_idle,
+            name,
+        )
         if (tripTracker.isActive) {
             tripButton.setText(R.string.action_end_trip)
             tripButton.setOnClickListener { confirmEndTrip() }
         } else {
             tripButton.setText(R.string.action_start_trip)
             tripButton.setOnClickListener { startTrip() }
+            voiceFix.cancel()
         }
         renderRecords()
+        showStartPoint()
+        val tripStart = tripTracker.activeStartMillis
+        route = if (tripStart == null) mutableListOf()
+        else routeStore.load(tripStart, Long.MAX_VALUE).toMutableList()
+        petMap.showRoute(route.toList())
         updateLocationPolling()
-        updateCheckInSchedule()
         updateSoundDetection()
+    }
+
+    /** 진행 중인 주행의 출발 지점을 지도에 네모로 보여 준다. */
+    private fun showStartPoint() {
+        val start = tripTracker.activeStartLocation
+        if (start == null) petMap.hideStart() else petMap.showStart(start.first, start.second)
     }
 
     /** 주행 중이고 화면에 보이는 동안 소리를 감지한다. 앱이 말하거나 듣는 동안에는 잠시 멈춘다. */
@@ -195,7 +245,7 @@ class MainActivity : Activity(), NaviManager.Callback {
             return
         }
         val error = soundError
-        if (tripActive && isResumedNow && !petCheckIn.isBusy && error == null) {
+        if (tripActive && isResumedNow && !voiceFix.isBusy && error == null) {
             soundDetector.start()
         } else {
             soundDetector.stop()
@@ -203,7 +253,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         soundStatus.text = when {
             error != null -> getString(R.string.sound_error, error)
             !tripActive -> getString(R.string.sound_off)
-            petCheckIn.isBusy -> getString(R.string.sound_paused)
+            voiceFix.isBusy -> getString(R.string.sound_paused)
             else -> getString(R.string.sound_listening)
         }
     }
@@ -220,9 +270,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         if (!tripTracker.isActive) return
         val decision = soundFilter.onDetected(behavior, SystemClock.uptimeMillis())
         if (decision.record) recordBehavior(behavior, detected = true)
-        if (decision.alert) {
-            behavior.soundAlertRes?.let { petCheckIn.announce(getString(it, getString(R.string.pet_name))) }
-        }
+        if (decision.alert) voiceFix.announce(getString(behavior.soundAlertRes, petName().withIGa()))
     }
 
     private fun onSoundError(message: String) {
@@ -242,67 +290,11 @@ class MainActivity : Activity(), NaviManager.Callback {
         )
     }
 
-    /** 주행 중이면 15분마다 음성으로 상태를 묻고, 주행이 끝나면 멈춘다. */
-    private fun updateCheckInSchedule() {
-        if (!tripTracker.isActive) {
-            mainHandler.removeCallbacksAndMessages(CHECK_IN_TOKEN)
-            isCheckInScheduled = false
-            petCheckIn.cancel()
-            return
-        }
-        if (isCheckInScheduled) return
-        isCheckInScheduled = true
-        mainHandler.postAtTime(
-            {
-                isCheckInScheduled = false
-                petCheckIn.ask()
-                updateCheckInSchedule()
-            },
-            CHECK_IN_TOKEN,
-            SystemClock.uptimeMillis() + CHECK_IN_INTERVAL_MS
-        )
-    }
-
     private fun showPendingTripResult() {
         if (!isResumedNow) return
         val result = tripTracker.pendingResult ?: return
         tripTracker.clearPendingResult()
         startActivity(TripSummaryActivity.intent(this, result))
-    }
-
-    private fun onCheckInEvent(message: String) {
-        locationStatus.text = message
-    }
-
-    private fun setUpPetRecording() {
-        lastRecord = findViewById(R.id.lastRecord)
-        recordCount = findViewById(R.id.recordCount)
-        recordList = findViewById(R.id.recordList)
-
-        val container = findViewById<LinearLayout>(R.id.behaviorButtons)
-        val buttonHeight = resources.getDimensionPixelSize(R.dimen.behavior_button_height)
-        val gap = resources.getDimensionPixelSize(R.dimen.behavior_button_gap)
-        PetBehavior.entries.filter { it.hasButton }.chunked(BEHAVIOR_COLUMNS).forEachIndexed { rowIndex, rowBehaviors ->
-            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-            rowBehaviors.forEachIndexed { columnIndex, behavior ->
-                val button = Button(this).apply {
-                    textSize = 22f
-                    setOnClickListener { recordBehavior(behavior) }
-                }
-                row.addView(button, LinearLayout.LayoutParams(0, buttonHeight, 1f).apply {
-                    if (columnIndex > 0) marginStart = gap
-                })
-                behaviorButtons[behavior] = button
-            }
-            container.addView(row, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                if (rowIndex > 0) topMargin = gap
-            })
-        }
-
-        findViewById<Button>(R.id.clearRecordsButton).setOnClickListener { confirmClearRecords() }
-        findViewById<Button>(R.id.exportRecordsButton).setOnClickListener { exportRecords() }
     }
 
     private fun recordBehavior(behavior: PetBehavior, detected: Boolean = false) {
@@ -312,109 +304,140 @@ class MainActivity : Activity(), NaviManager.Callback {
             tripTracker.startTrip(now)
             onTripChanged()
         }
-        val record = PetRecord(
-            timeMillis = now,
-            behavior = behavior,
-            naviStatus = currentNaviStatus?.name,
-            address = null,
-            detected = detected,
+        records.add(
+            0,
+            PetRecord(
+                timeMillis = now,
+                behavior = behavior,
+                naviStatus = currentNaviStatus?.name,
+                address = null,
+                detected = detected,
+            )
         )
-        records.add(0, record)
         recordStore.save(records)
-
-        lastRecord.text = getString(
-            if (detected) R.string.last_record_detected else R.string.last_record,
-            timeFormat.format(Date(record.timeMillis)),
-            getString(behavior.labelRes)
-        )
-        flashLastRecord()
         renderRecords()
 
         // 위치가 오면 onCurrentLocation에서 기록에 넣고 지도에 마커를 찍는다
         if (naviManager.isConnected) naviManager.requestCurrentLocation()
     }
 
-    private fun flashLastRecord() {
-        mainHandler.removeCallbacksAndMessages(FLASH_TOKEN)
-        lastRecord.setBackgroundResource(R.color.last_record_flash)
-        mainHandler.postAtTime(
-            { lastRecord.setBackgroundResource(R.color.last_record_idle) },
-            FLASH_TOKEN,
-            SystemClock.uptimeMillis() + FLASH_DURATION_MS
-        )
+    private fun changeRecord(record: PetRecord, to: PetBehavior) {
+        records.replaceAll { if (it.timeMillis == record.timeMillis) it.copy(behavior = to) else it }
+        recordStore.save(records)
+        renderRecords()
     }
 
-    /** 이번 주행의 기록만 버튼 횟수, 목록, 지도에 보여 준다. */
-    private fun renderRecords() {
-        val tripStart = tripTracker.activeStartMillis
-        val tripRecords = if (tripStart == null) emptyList() else records.filter { it.timeMillis >= tripStart }
-        val counts = tripRecords.groupingBy { it.behavior }.eachCount()
-        behaviorButtons.forEach { (behavior, button) ->
-            button.text = getString(R.string.behavior_button, getString(behavior.labelRes), counts[behavior] ?: 0)
+    private fun deleteRecord(record: PetRecord) {
+        records.removeAll { it.timeMillis == record.timeMillis }
+        recordStore.save(records)
+        renderRecords()
+    }
+
+    /** 말로 고치기 명령을 기록에 반영하고, 읽어 줄 결과 문장을 돌려준다. */
+    private fun applyCommand(command: PetCommand): String = when (command) {
+        is PetCommand.Change -> {
+            val target = latestTripRecord(command.from)
+            when {
+                target == null -> nothingToFix(command.from)
+                target.behavior == command.to -> getString(R.string.voice_fix_already, getString(command.to.labelRes))
+                else -> {
+                    changeRecord(target, command.to)
+                    getString(R.string.voice_fix_changed, getString(target.behavior.labelRes), getString(command.to.labelRes))
+                }
+            }
         }
-        recordCount.text = getString(R.string.record_count, tripRecords.size)
-        recordList.text = tripRecords.take(MAX_RECORDS_SHOWN).joinToString("\n") { it.toDisplayText() }
+        is PetCommand.Delete -> {
+            val target = latestTripRecord(command.target)
+            if (target == null) {
+                nothingToFix(command.target)
+            } else {
+                deleteRecord(target)
+                getString(R.string.voice_fix_deleted, getString(target.behavior.labelRes))
+            }
+        }
+        is PetCommand.Add -> {
+            recordBehavior(command.behavior)
+            getString(R.string.voice_fix_added, getString(command.behavior.labelRes))
+        }
+        PetCommand.Cancel, PetCommand.Unknown -> getString(R.string.voice_fix_cancel)
+    }
+
+    private fun nothingToFix(behavior: PetBehavior?): String =
+        if (behavior == null) getString(R.string.voice_fix_nothing)
+        else getString(R.string.voice_fix_nothing_of, getString(behavior.labelRes))
+
+    /** 들은 말을 말하기 버튼 옆 말풍선에 잠깐 보여 준다. */
+    private fun showHeard(text: String?) {
+        showVoiceTip(text?.let { getString(R.string.voice_heard, it) } ?: getString(R.string.voice_heard_nothing))
+    }
+
+    /** 말하기 버튼 옆 말풍선을 [VOICE_TIP_DURATION_MS] 동안 보여 주고 사라지게 한다. */
+    private fun showVoiceTip(text: String) {
+        voiceTipText.text = text
+        voiceTip.animate().cancel()
+        voiceTip.alpha = 1f
+        voiceTip.visibility = View.VISIBLE
+        mainHandler.removeCallbacksAndMessages(VOICE_TIP_TOKEN)
+        mainHandler.postAtTime(::hideVoiceTip, VOICE_TIP_TOKEN, SystemClock.uptimeMillis() + VOICE_TIP_DURATION_MS)
+    }
+
+    private fun hideVoiceTip() {
+        mainHandler.removeCallbacksAndMessages(VOICE_TIP_TOKEN)
+        if (voiceTip.visibility != View.VISIBLE) return
+        voiceTip.animate().alpha(0f).setDuration(VOICE_TIP_FADE_MS)
+            .withEndAction { voiceTip.visibility = View.GONE }
+    }
+
+    /** 위치 연결 실패, 음성 오류를 제목 아래에 보여 준다. */
+    private fun showAlert(text: String) {
+        driveAlert.text = text
+        driveAlert.visibility = View.VISIBLE
+    }
+
+    private fun tripRecords(): List<PetRecord> {
+        val tripStart = tripTracker.activeStartMillis ?: return emptyList()
+        return records.filter { it.timeMillis >= tripStart }
+    }
+
+    /** 이번 주행에서 [behavior] 종류(null이면 아무 종류)의 가장 최근 기록. */
+    private fun latestTripRecord(behavior: PetBehavior? = null): PetRecord? =
+        tripRecords().firstOrNull { behavior == null || it.behavior == behavior }
+
+    /** 이번 주행의 기록만 횟수, 최근 기록 카드, 지난 기록, 지도에 보여 준다. */
+    private fun renderRecords() {
+        val tripRecords = tripRecords()
+        val counts = TripStats.typeCounts(tripRecords)
+        showCounts(countViews, counts)
+
+        val latest = tripRecords.firstOrNull()
+        latestRecord.visibility = if (latest == null) View.GONE else View.VISIBLE
+        latestRecordActions.visibility = latestRecord.visibility
+        latestRecordEmpty.visibility = if (latest == null) View.VISIBLE else View.GONE
+        if (latest != null) {
+            bindRecordRow(latestRecord, latest)
+            latestChoices.select(latest.behavior)
+        }
+
+        olderRecords.removeAllViews()
+        tripRecords.drop(1).forEach { record ->
+            val row = layoutInflater.inflate(R.layout.row_drive_record, olderRecords, false)
+            bindRecordRow(row, record)
+            olderRecords.addView(row)
+        }
+        olderRecords.visibility = if (olderRecords.childCount == 0) View.GONE else View.VISIBLE
         petMap.showRecords(tripRecords)
     }
 
-    private fun PetRecord.toDisplayText(): String = buildString {
-        append(timeFormat.format(Date(timeMillis)))
-        append("  ")
-        append(getString(behavior.labelRes))
-        if (detected) append(" · ").append(getString(R.string.record_detected_short))
-        address?.let { append(" · ").append(it) }
-    }
-
-    private fun confirmClearRecords() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.clear_records_title)
-            .setPositiveButton(R.string.clear_records_confirm) { _, _ ->
-                records.clear()
-                recordStore.save(records)
-                lastRecord.setText(R.string.last_record_empty)
-                renderRecords()
-            }
-            .setNegativeButton(R.string.clear_records_cancel, null)
-            .show()
-    }
-
-    private fun exportRecords() {
-        if (records.none { it.latitude != null && it.longitude != null }) {
-            Toast.makeText(this, R.string.export_nothing, Toast.LENGTH_SHORT).show()
-            return
-        }
-        val result = try {
-            PetRecordExporter(this).export(records)
-        } catch (e: IOException) {
-            Toast.makeText(this, getString(R.string.export_failed, e.message.orEmpty()), Toast.LENGTH_LONG).show()
-            return
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.export_done_title)
-            .setMessage(
-                getString(
-                    R.string.export_done_message,
-                    result.exportedCount,
-                    result.skippedCount,
-                    result.file.absolutePath
-                )
-            )
-            .setPositiveButton(R.string.dialog_ok, null)
-            .show()
-    }
-
     companion object {
-        private const val MAX_RECORDS_SHOWN = 50
-        private const val BEHAVIOR_COLUMNS = 3
-        private const val FLASH_DURATION_MS = 1500L
+        /** 경로는 결과 화면에서 다시 볼 수 있게 30일 동안 둔다. */
+        private const val ROUTE_KEEP_MS = 30L * 24 * 60 * 60 * 1000
+        private const val VOICE_TIP_DURATION_MS = 5_000L
+        private const val VOICE_TIP_FADE_MS = 300L
         private const val LOCATION_FILL_WINDOW_MS = 10_000L
         private const val LOCATION_POLL_INTERVAL_MS = 5_000L
-        private const val CHECK_IN_INTERVAL_MS = 15 * 60 * 1000L
-        private val FLASH_TOKEN = Any()
         private val LOCATION_TOKEN = Any()
-        private val CHECK_IN_TOKEN = Any()
+        private val VOICE_TIP_TOKEN = Any()
 
         private const val REQUEST_MIC = 1
-        private const val STATE_LAST_RECORD = "lastRecord"
     }
 }

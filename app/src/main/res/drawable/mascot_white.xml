@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    흰 평면 마스코트. 주행 화면의 초록 말하기 버튼 위에 쓴다.
+    mascot_flat과 같은 그림에서 몸은 흰색, 눈·코는 버튼 초록으로 칠하고 눈 구멍은 비워 둔다.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="66dp"
+    android:viewportWidth="808"
+    android:viewportHeight="740">
+    <group android:translateX="-148">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M727.554 0C896.306 7.1311e-05 1001.54 182.95 916.698 328.823L740.936 631.012C656.561 776.076 447.022 776.076 362.647 631.012L186.885 328.823C102.04 182.95 207.277 0 376.029 0H727.554ZM731.027 37.4863C632.154 37.4864 552 117.64 552 216.514C552 315.387 632.154 395.54 731.027 395.54C829.901 395.54 910.055 315.387 910.055 216.514C910.055 117.64 829.901 37.4863 731.027 37.4863Z" />
+        <path
+            android:fillColor="@color/voice_button"
+            android:pathData="M308.148 230.298C296.122 244.184 274.581 244.184 262.555 230.298L225.204 187.169C208.29 167.638 222.164 137.27 248.001 137.27L322.703 137.27C348.54 137.27 362.414 167.638 345.499 187.169L308.148 230.298Z" />
+        <path
+            android:pathData="M285.351,226.784L285.351,326.243"
+            android:strokeWidth="19.8919"
+            android:strokeColor="@color/voice_button"
+            android:strokeLineCap="round" />
+        <path
+            android:fillColor="@color/voice_button"
+            android:pathData="M325.243,77.378a19.892,19.892 0 1,0 39.784,0a19.892,19.892 0 1,0 -39.784,0Z" />
+        <path
+            android:fillColor="@color/voice_button"
+            android:pathData="M404.81,77.378a19.892,19.892 0 1,0 39.784,0a19.892,19.892 0 1,0 -39.784,0Z" />
+    </group>
+</vector>

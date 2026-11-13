@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 아니요: 분홍 엑스 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M7,7L33,33M33,7L7,33"
+        android:strokeWidth="3.5"
+        android:strokeColor="@color/map_pink"
+        android:strokeLineCap="round" />
+</vector>

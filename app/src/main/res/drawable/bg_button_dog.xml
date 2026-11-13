@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 등록된 강아지 버튼 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape><solid android:color="@color/button_dog_pressed" /><corners android:radius="20dp" /></shape>
+    </item>
+    <item>
+        <shape><solid android:color="@color/button_dog" /><corners android:radius="20dp" /></shape>
+    </item>
+</selector>

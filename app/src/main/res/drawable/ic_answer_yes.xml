@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 네: 파란 동그라미 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M20,3.5a16.5,16.5 0,1 1,0 33a16.5,16.5 0,1 1,0 -33z"
+        android:strokeWidth="3.5"
+        android:strokeColor="@color/map_blue" />
+</vector>

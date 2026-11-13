@@ -1,81 +1,98 @@
 <resources>
-    <string name="app_name">Pawgo</string>
+    <!-- 기록 종류 이름(울음·낑낑·하울링)은 모두 받침으로 끝나서 조사를 이·으로로 고정한다 -->
+    <string name="app_name">댕큐</string>
+    <string name="pet_name">뽀삐</string>
 
-    <string name="location_connecting">위치 연결 중…</string>
-    <string name="location_connected">위치 연결됨</string>
+    <!-- 시작 화면. 이름 자리(%1$s)에는 조사까지 붙은 이름이 들어간다 -->
+    <string name="start_select_title">오늘은 %1$s와 달려볼까요?</string>
+    <string name="start_select_placeholder">누구</string>
+    <string name="start_add_dog">+  추가하기</string>
+    <!-- 이름 입력 화면: 오늘은 [이름]와/과 달려볼까요? 앞의 공백을 지키려고 따옴표로 감싼다 -->
+    <string name="start_name_prefix">"오늘은 "</string>
+    <string name="start_name_suffix_wa">와 달려볼까요?</string>
+    <string name="start_name_suffix_gwa">과 달려볼까요?</string>
+    <string name="start_add_dog_confirm">등록하기</string>
+    <string name="start_add_dog_cancel">취소</string>
+    <string name="start_add_dog_duplicate">이미 등록한 이름이에요</string>
+    <string name="start_first_drive_title">%1$s 첫 주행인가요?</string>
+    <string name="start_yes">네</string>
+    <string name="start_no">아니요</string>
+    <string name="start_timer_title">%1$s에게\n적응할 시간을 주세요.</string>
+    <string name="start_timer_skip">건너뛰기</string>
+
+    <!-- 위치·지도 -->
     <string name="location_failed">위치 연결 실패: %1$s</string>
-
     <string name="map_key_missing">지도를 표시할 수 없어요.
 local.properties에 TMAP_APP_KEY를 넣어 주세요.</string>
     <string name="map_key_failed">지도 인증에 실패했어요: %1$s</string>
 
-    <string name="section_pet">반려동물 행동 기록</string>
-    <string name="behavior_barking">짖음</string>
-    <string name="behavior_whining">낑낑·불안</string>
-    <string name="behavior_carsick">멀미·구토</string>
-    <string name="behavior_sleeping">잠</string>
-    <string name="behavior_toilet">배변 신호</string>
-    <string name="behavior_excited">흥분</string>
+    <!-- 기록 종류 -->
+    <string name="behavior_whining">낑낑</string>
+    <string name="behavior_crying">울음</string>
     <string name="behavior_howling">하울링</string>
-    <string name="behavior_growling">으르렁</string>
-    <string name="behavior_dog_sound">강아지 소리</string>
-    <string name="marker_howling">하울링</string>
-    <string name="marker_growling">으르렁</string>
-    <string name="marker_dog_sound">강아지</string>
-    <string name="marker_barking">짖음</string>
-    <string name="marker_whining">낑낑</string>
-    <string name="marker_carsick">멀미</string>
-    <string name="marker_sleeping">잠</string>
-    <string name="marker_toilet">배변</string>
-    <string name="marker_excited">흥분</string>
-    <string name="behavior_button">%1$s\n%2$d회</string>
-    <string name="last_record_empty">버튼을 누르면 여기에 표시됩니다</string>
-    <string name="last_record">%1$s  %2$s 기록됨</string>
-    <string name="record_count">이번 주행 기록 %1$d건</string>
-    <string name="action_clear_records">기록 지우기</string>
-    <string name="clear_records_title">기록을 모두 지울까요?</string>
-    <string name="clear_records_confirm">지우기</string>
-    <string name="clear_records_cancel">취소</string>
-    <string name="action_export_records">지도용 내보내기</string>
-    <string name="export_done_title">GeoJSON 파일로 내보냈습니다</string>
-    <string name="export_done_message">기록 %1$d건을 저장했습니다 (위치 없는 기록 %2$d건 제외).\n\n%3$s</string>
-    <string name="export_nothing">위치가 저장된 기록이 없습니다</string>
-    <string name="export_failed">내보내기에 실패했습니다: %1$s</string>
-    <string name="dialog_ok">확인</string>
-    <string name="pet_name">뽀삐</string>
-    <string name="check_in_question">지금 %1$s 상태 어때요?</string>
-    <string name="check_in_recorded">%1$s, 기록했어요</string>
-    <string name="check_in_fine">알겠어요. 다음에 또 물어볼게요</string>
-    <string name="check_in_retry">잘 못 들었어요. 다시 말씀해 주세요</string>
-    <string name="check_in_give_up">다음에 다시 물어볼게요</string>
-    <string name="check_in_heard">음성 대답: %1$s</string>
-    <string name="voice_error">음성 안내 오류: %1$s</string>
 
-    <string name="sound_off">주행을 시작하면 강아지 소리를 감지해요</string>
-    <string name="sound_listening">강아지 소리 감지 중</string>
-    <string name="sound_paused">음성 안내 중이라 소리 감지를 잠시 멈췄어요</string>
-    <string name="sound_no_permission">마이크 권한이 없어 소리를 감지할 수 없어요</string>
-    <string name="sound_error">소리 감지 오류: %1$s</string>
-    <string name="sound_alert_barking">%1$s가 짖고 있어요</string>
-    <string name="sound_alert_whining">%1$s가 낑낑거려요</string>
-    <string name="sound_alert_howling">%1$s가 하울링하고 있어요</string>
-    <string name="sound_alert_growling">%1$s가 으르렁거려요</string>
-    <string name="sound_alert_dog_sound">%1$s 소리가 들려요</string>
-    <string name="last_record_detected">%1$s  %2$s 감지</string>
-    <string name="record_detected">%1$s (소리 감지)</string>
-    <string name="record_detected_short">소리 감지</string>
+    <!-- 주행 화면 -->
+    <string name="latest_record_title">최근 기록</string>
+    <string name="latest_record_empty">아직 기록이 없어요</string>
+    <string name="action_delete_record">삭제</string>
+    <string name="voice_heard">들은 말: %1$s</string>
+    <string name="voice_heard_nothing">아무 말도 듣지 못했어요</string>
+    <string name="voice_error">음성 오류: %1$s</string>
+    <string name="record_detected">%1$s (자동 감지)</string>
+    <string name="record_detected_short">자동 감지</string>
 
     <string name="action_start_trip">주행 시작</string>
     <string name="action_end_trip">주행 종료</string>
-    <string name="end_trip_title">주행을 종료할까요?</string>
-    <string name="end_trip_message">이번 주행의 기록 지도와 결과를 보여 줍니다.</string>
-    <string name="end_trip_confirm">종료</string>
-    <string name="trip_ended">주행 종료</string>
-    <string name="trip_highlight">기록 %1$d건 · 가장 많았던 행동은 %2$s (%3$d회)</string>
-    <string name="trip_no_records">이번 주행에서 남긴 기록이 없습니다</string>
-    <string name="trip_no_location">위치를 받지 못한 기록 %1$d건은 지도에 표시되지 않았어요</string>
-    <string name="trip_section_counts">행동별 횟수</string>
-    <string name="trip_count_line">%1$s  %2$d회</string>
-    <string name="trip_section_timeline">타임라인</string>
+    <string name="end_trip_title">주행을 완료할까요?</string>
+    <string name="end_trip_message">이번 주행의 기록 지도와 결과를 보여 줘요.</string>
+    <string name="end_trip_confirm">완료</string>
+    <string name="dialog_cancel">취소</string>
+    <string name="dialog_ok">확인</string>
+
+    <!-- 소리 감지 -->
+    <string name="sound_off">주행을 시작하면 강아지 소리를 감지해요.</string>
+    <string name="sound_listening">댕큐가 소리를 감지하고 있어요.</string>
+    <string name="sound_paused">음성 안내 중이라 소리 감지를 잠시 멈췄어요.</string>
+    <string name="sound_no_permission">마이크 권한이 없어 소리를 감지할 수 없어요.</string>
+    <string name="sound_error">소리 감지 오류: %1$s</string>
+    <string name="sound_alert_whining">%1$s 낑낑거려요</string>
+    <string name="sound_alert_crying">%1$s 울고 있어요</string>
+    <string name="sound_alert_howling">%1$s 하울링하고 있어요</string>
+
+    <!-- 말로 고치기 음성 -->
+    <string name="voice_fix_question">네, 어떻게 고칠까요?</string>
+    <string name="voice_fix_retry">잘 못 들었어요. 다시 말씀해 주세요</string>
+    <string name="voice_fix_give_up">기록을 눌러서 고쳐 주세요</string>
+    <string name="voice_fix_changed">방금 %1$s 기록을 %2$s으로 바꿨어요</string>
+    <string name="voice_fix_already">이미 %1$s 기록이에요</string>
+    <string name="voice_fix_deleted">방금 %1$s 기록을 지웠어요</string>
+    <string name="voice_fix_added">%1$s 기록을 남겼어요</string>
+    <string name="voice_fix_nothing">고칠 기록이 없어요</string>
+    <string name="voice_fix_nothing_of">%1$s 기록이 없어요</string>
+    <string name="voice_fix_cancel">알겠어요</string>
+
+    <!-- 주행 결과 -->
+    <string name="trip_title">%1$s와 드라이브 완료!</string>
+    <string name="trip_subtitle">오늘도 안전하게, 댕큐</string>
+    <string name="trip_highlight">%1$d건 중 %2$s이 %3$d건으로 가장 많았어요.</string>
+    <string name="trip_no_records">이번 주행에서 남은 기록이 없어요. %1$s 편안했나 봐요!</string>
+    <string name="trip_no_location">위치를 받지 못한 기록 %1$d건은 지도에 없어요</string>
+    <string name="trip_section_timeline">시간대별 발성</string>
+    <string name="trip_peak">출발 후 %1$s이 %2$d건으로 가장 잦았어요.</string>
+    <string name="trip_section_records">발성 기록</string>
     <string name="trip_close">닫기</string>
+
+    <!-- 내보내기 -->
+    <string name="action_export_records">지도용 내보내기</string>
+    <string name="export_done_title">GeoJSON 파일로 내보냈어요</string>
+    <string name="export_done_message">기록 %1$d건을 저장했어요 (위치 없는 기록 %2$d건 제외).\n\n%3$s</string>
+    <string name="export_failed">내보내기에 실패했어요: %1$s</string>
+    <!-- 주행 화면 -->
+    <string name="drive_title_active">%1$s와 드라이브중...</string>
+    <string name="drive_title_idle">%1$s와 드라이브할까요?</string>
+    <string name="drive_count">%1$d회</string>
+    <string name="record_source_detected">소리 감지</string>
+    <string name="record_source_manual">직접 기록</string>
+    <string name="voice_tip">수정 또는 기록을 말로 하고 싶다면 눌러 주세요.</string>
+    <string name="voice_button_description">말로 기록하거나 고치기</string>
 </resources>

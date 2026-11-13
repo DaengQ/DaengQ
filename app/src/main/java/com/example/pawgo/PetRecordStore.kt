@@ -16,12 +16,9 @@ class PetRecordStore(context: Context) {
         if (!file.exists()) return mutableListOf()
         return try {
             val array = JSONArray(file.readText())
-            MutableList(array.length()) { i -> array.getJSONObject(i).toRecord() }
+            (0 until array.length()).mapNotNullTo(mutableListOf()) { i -> array.getJSONObject(i).toRecord() }
         } catch (e: JSONException) {
             Log.e(TAG, "Failed to read pet records", e)
-            mutableListOf()
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "Unknown behavior in pet records", e)
             mutableListOf()
         }
     }
@@ -42,15 +39,19 @@ class PetRecordStore(context: Context) {
         put("detected", detected)
     }
 
-    private fun JSONObject.toRecord() = PetRecord(
-        timeMillis = getLong("time"),
-        behavior = PetBehavior.valueOf(getString("behavior")),
-        naviStatus = optStringOrNull("naviStatus"),
-        address = optStringOrNull("address"),
-        latitude = optDoubleOrNull("latitude"),
-        longitude = optDoubleOrNull("longitude"),
-        detected = optBoolean("detected", false),
-    )
+    /** 지금은 기록하지 않는 예전 종류의 기록이면 null. */
+    private fun JSONObject.toRecord(): PetRecord? {
+        val behavior = PetBehavior.fromStoredName(getString("behavior")) ?: return null
+        return PetRecord(
+            timeMillis = getLong("time"),
+            behavior = behavior,
+            naviStatus = optStringOrNull("naviStatus"),
+            address = optStringOrNull("address"),
+            latitude = optDoubleOrNull("latitude"),
+            longitude = optDoubleOrNull("longitude"),
+            detected = optBoolean("detected", false),
+        )
+    }
 
     // isNull은 키가 없을 때도 true라서 좌표가 없던 예전 기록도 그대로 읽힌다
     private fun JSONObject.optStringOrNull(name: String): String? =

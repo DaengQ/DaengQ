@@ -1,22 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    댕큐 디자인 시스템 색.
+    화면에서는 스케일 값 대신 아래쪽 시맨틱 색을 쓴다. 다크 값은 values-night/colors.xml에 있다.
+-->
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+    <!-- 브랜드: Grass green -->
+    <color name="green_50">#FFEFFAF0</color>
+    <color name="green_200">#FFBBE7BF</color>
+    <color name="green_300">#FF89D28F</color>
+    <color name="green_400">#FF4ABF54</color>
+    <color name="green_500">#FF288830</color>
+    <color name="green_600">#FF227729</color>
+    <color name="green_700">#FF1A6120</color>
+    <color name="green_800">#FF124917</color>
+    <color name="green_900">#FF0B2D0E</color>
+
+    <!-- 중립: Cool gray -->
+    <color name="gray_50">#FFF7F8FB</color>
+    <color name="gray_100">#FFEEF0F4</color>
+    <color name="gray_200">#FFDFE3E9</color>
+    <color name="gray_300">#FFCACFD8</color>
+    <color name="gray_400">#FF9EA5B3</color>
+    <color name="gray_500">#FF697386</color>
+    <color name="gray_600">#FF525C6F</color>
+    <color name="gray_700">#FF3D4657</color>
+    <color name="gray_800">#FF262D3B</color>
+    <color name="gray_900">#FF151A23</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="last_record_idle">#1F808080</color>
-    <color name="last_record_flash">#FFFFD54F</color>
-    <color name="marker_barking">#FFE53935</color>
-    <color name="marker_whining">#FF8E24AA</color>
-    <color name="marker_carsick">#FF2E7D32</color>
-    <color name="marker_sleeping">#FF1E88E5</color>
-    <color name="marker_toilet">#FF6D4C41</color>
-    <color name="marker_excited">#FFEF6C00</color>
-    <color name="marker_howling">#FF00838F</color>
-    <color name="marker_growling">#FF37474F</color>
-    <color name="marker_dog_sound">#FF827717</color>
-    <color name="location_icon">#FF1565C0</color>
+
+    <!-- 브랜드 시맨틱. brand_primary 계열은 두 테마에서 같다 -->
+    <color name="brand_primary">@color/green_500</color>
+    <color name="brand_primary_active">@color/green_700</color>
+    <color name="brand_on_primary">@color/white</color>
+    <color name="brand_bg_subtle">@color/green_50</color>
+    <color name="brand_border">@color/green_200</color>
+    <color name="brand_text_on_subtle">@color/green_700</color>
+
+    <!-- 배경·글자·테두리 시맨틱 -->
+    <color name="bg_page">@color/gray_50</color>
+    <color name="bg_surface">@color/white</color>
+    <color name="bg_sub">@color/gray_100</color>
+    <color name="divider">@color/gray_100</color>
+    <color name="border_default">@color/gray_200</color>
+    <color name="border_control">@color/gray_300</color>
+    <color name="fg_strong">@color/gray_900</color>
+    <color name="fg_body">@color/gray_700</color>
+    <color name="fg_muted">@color/gray_600</color>
+    <color name="fg_subtle">@color/gray_500</color>
+    <color name="fg_disabled">@color/gray_400</color>
+
+    <!-- 지도 마커. 흰 글자 + 흰 테두리 2px. 색만으로 구분하지 않도록 마커에 종류 이름도 쓴다 -->
+    <color name="map_blue">#FF1E6FE0</color>
+    <color name="map_purple">#FF6D4AE0</color>
+    <color name="map_pink">#FFDB2777</color>
+    <color name="marker_whining">@color/map_pink</color>
+    <color name="marker_crying">@color/map_blue</color>
+    <color name="marker_howling">@color/map_purple</color>
+    <color name="location_icon">@color/brand_primary</color>
+    <!-- 기록 동그라미와 출발 네모의 테두리 -->
+    <color name="map_outline">@color/gray_900</color>
+    <!-- 지나온 길 -->
+    <color name="map_route">@color/gray_900</color>
+
+    <!-- 시작 화면(강아지 선택·첫 주행 질문·적응 타이머) -->
+    <color name="hero_bg_top">@color/gray_100</color>
+    <color name="hero_bg_bottom">@color/white</color>
+    <color name="button_neutral">@color/gray_200</color>
+    <color name="button_neutral_pressed">@color/gray_300</color>
+    <color name="button_dog">@color/green_400</color>
+    <color name="button_dog_pressed">@color/green_500</color>
+    <color name="button_dog_text">@color/green_900</color>
+    <color name="hero_name">@color/brand_primary</color>
+    <color name="hero_placeholder">@color/gray_500</color>
+    <color name="hero_name_hint">@color/gray_200</color>
+    <!-- 적응 타이머 게이지: 마스코트와 같은 초록 -->
+    <color name="gauge_progress">#FF14C326</color>
+    <color name="gauge_rim">#FF0A9F1A</color>
+    <color name="gauge_track">@color/gray_300</color>
+
+    <!-- 주행 화면: 지도 위 말하기 버튼과 잠깐 뜨는 안내 말풍선 -->
+    <color name="voice_button">@color/brand_primary</color>
+    <color name="voice_tip_bg">#E6262D3B</color>
+
+    <!-- 결과 화면 한 줄 요약 꼬리표 바탕 -->
+    <color name="tag_bg">#FFE5F1E6</color>
+
+    <!-- 시간대 막대 -->
+    <color name="chart_bar">@color/brand_border</color>
+    <color name="chart_bar_peak">@color/brand_primary</color>
 </resources>

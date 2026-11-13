@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 주행 화면에서 지도 위에 뜬 기록 패널 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/bg_surface" />
+    <corners android:radius="40dp" />
+</shape>

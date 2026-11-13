@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    지도 왼쪽 아래의 말하기 버튼과 오른쪽 말풍선. 누르면 말로 기록하거나 고친다.
+    말풍선은 안내나 들은 말을 잠깐 보여 주고 사라진다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:id="@+id/voiceFixButton"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:background="@drawable/bg_voice_button"
+        android:clickable="true"
+        android:contentDescription="@string/voice_button_description"
+        android:elevation="6dp"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="66dp"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:src="@drawable/mascot_white" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/voiceTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="28dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/voice_tip_tail" />
+
+        <TextView
+            android:id="@+id/voiceTipText"
+            style="@style/Text.Daengq.Label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_voice_tip"
+            android:maxWidth="760dp"
+            android:paddingStart="28dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="28dp"
+            android:paddingBottom="18dp"
+            android:textColor="@color/white"
+            android:textFontWeight="600" />
+    </LinearLayout>
+</LinearLayout>

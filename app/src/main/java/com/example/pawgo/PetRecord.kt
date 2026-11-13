@@ -3,25 +3,32 @@ package com.example.pawgo
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 
-/** 운전자가 버튼이나 음성으로 기록하거나 소리로 감지하는 반려동물 행동. 지도에는 색과 짧은 이름의 마커로 표시한다. */
+/**
+ * 기록하는 강아지 소리 세 종류. 소리 감지와 버튼 기록, 음성 수정이 모두 이 셋만 쓴다.
+ * 지도에는 종류별 색의 동그라미로 표시한다. 화면에는 이 순서(울음·낑낑·하울링)로 보여 준다.
+ */
 enum class PetBehavior(
     @StringRes val labelRes: Int,
-    @StringRes val markerLabelRes: Int,
     @ColorRes val markerColorRes: Int,
-    /** 소리로 감지했을 때 운전자에게 읽어 줄 문장. 소리로 감지하지 않는 행동은 null. */
-    @StringRes val soundAlertRes: Int? = null,
-    /** 행동 버튼을 보여 줄지. 소리와 음성으로만 기록하는 행동은 false. */
-    val hasButton: Boolean = true,
+    /** 소리로 감지했을 때 운전자에게 읽어 줄 문장. */
+    @StringRes val soundAlertRes: Int,
 ) {
-    BARKING(R.string.behavior_barking, R.string.marker_barking, R.color.marker_barking, R.string.sound_alert_barking),
-    WHINING(R.string.behavior_whining, R.string.marker_whining, R.color.marker_whining, R.string.sound_alert_whining),
-    CARSICK(R.string.behavior_carsick, R.string.marker_carsick, R.color.marker_carsick),
-    SLEEPING(R.string.behavior_sleeping, R.string.marker_sleeping, R.color.marker_sleeping),
-    TOILET(R.string.behavior_toilet, R.string.marker_toilet, R.color.marker_toilet),
-    EXCITED(R.string.behavior_excited, R.string.marker_excited, R.color.marker_excited),
-    HOWLING(R.string.behavior_howling, R.string.marker_howling, R.color.marker_howling, R.string.sound_alert_howling, hasButton = false),
-    GROWLING(R.string.behavior_growling, R.string.marker_growling, R.color.marker_growling, R.string.sound_alert_growling, hasButton = false),
-    DOG_SOUND(R.string.behavior_dog_sound, R.string.marker_dog_sound, R.color.marker_dog_sound, R.string.sound_alert_dog_sound, hasButton = false),
+    CRYING(R.string.behavior_crying, R.color.marker_crying, R.string.sound_alert_crying),
+    WHINING(R.string.behavior_whining, R.color.marker_whining, R.string.sound_alert_whining),
+    HOWLING(R.string.behavior_howling, R.color.marker_howling, R.string.sound_alert_howling);
+
+    companion object {
+        /**
+         * 저장된 이름을 종류로 바꾼다. 종류가 9개였던 예전 기록도 읽는다.
+         * 짖음·으르렁·강아지 소리는 울음으로 옮기고, 소리가 아닌 기록(멀미·잠·배변·흥분)은 버린다.
+         */
+        fun fromStoredName(name: String): PetBehavior? = when (name) {
+            "WHINING" -> WHINING
+            "CRYING", "BARKING", "GROWLING", "DOG_SOUND" -> CRYING
+            "HOWLING" -> HOWLING
+            else -> null
+        }
+    }
 }
 
 data class PetRecord(
@@ -36,4 +43,7 @@ data class PetRecord(
     val longitude: Double? = null,
     /** 사람이 남긴 기록이 아니라 소리 감지로 남은 기록인지. */
     val detected: Boolean = false,
-)
+) {
+    val hasLocation: Boolean
+        get() = latitude != null && longitude != null
+}

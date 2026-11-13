@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 시작 화면 배경. 위 절반은 회색, 아래로 갈수록 흰색으로 옅어진다 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:centerColor="@color/hero_bg_top"
+        android:centerY="0.5"
+        android:endColor="@color/hero_bg_bottom"
+        android:startColor="@color/hero_bg_top"
+        android:type="linear" />
+</shape>

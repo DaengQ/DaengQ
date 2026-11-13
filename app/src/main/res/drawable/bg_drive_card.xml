@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 패널 안의 회색 묶음(최근 기록, 지난 기록) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/bg_sub" />
+    <corners android:radius="24dp" />
+</shape>
