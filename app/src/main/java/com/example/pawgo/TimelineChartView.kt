@@ -30,7 +30,8 @@ class TimelineChartView @JvmOverloads constructor(
         strokeWidth = dp(2f)
     }
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = context.getColor(R.color.fg_subtle)
+        // 회색 카드 위에서도 4.5:1이 넘도록 fg_muted
+        color = context.getColor(R.color.fg_muted)
         textSize = sp(20f)
         textAlign = Paint.Align.CENTER
         typeface = this@TimelineChartView.typeface

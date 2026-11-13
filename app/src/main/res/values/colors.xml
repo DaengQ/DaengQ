@@ -72,14 +72,16 @@
     <color name="button_dog_text">@color/green_900</color>
     <color name="hero_name">@color/brand_primary</color>
     <color name="hero_placeholder">@color/gray_500</color>
-    <color name="hero_name_hint">@color/gray_200</color>
+    <!-- 이름 입력칸 "누구" 안내. 흰 바탕에서 4.5:1이 넘도록 gray_500 -->
+    <color name="hero_name_hint">@color/gray_500</color>
     <!-- 적응 타이머 게이지: 마스코트와 같은 초록 -->
     <color name="gauge_progress">#FF14C326</color>
     <color name="gauge_rim">#FF0A9F1A</color>
     <color name="gauge_track">@color/gray_300</color>
 
     <!-- 주행 화면: 지도 위 말하기 버튼과 잠깐 뜨는 안내 말풍선 -->
-    <color name="voice_button">@color/brand_primary</color>
+    <color name="voice_button">@color/gray_900</color>
+    <color name="voice_button_pressed">@color/gray_700</color>
     <color name="voice_tip_bg">#E6262D3B</color>
 
     <!-- 결과 화면 한 줄 요약 꼬리표 바탕 -->

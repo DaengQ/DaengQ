@@ -5,8 +5,8 @@
     <dimen name="drive_panel_width">640dp</dimen>
     <dimen name="drive_panel_margin">24dp</dimen>
     <dimen name="button_gap">12dp</dimen>
-    <!-- 기록 고치기 버튼(울음·낑낑·하울링·삭제) 높이 -->
-    <dimen name="choice_button_height">64dp</dimen>
+    <!-- 기록 고치기 버튼(울음·낑낑·하울링·삭제) 높이. 주행 중에 누르므로 차량 권장 터치 크기 76dp -->
+    <dimen name="choice_button_height">76dp</dimen>
     <dimen name="dot_size">16dp</dimen>
     <!-- 시작 화면: 버튼 두 개가 각 576dp가 되도록 양옆 262dp를 비운다 -->
     <dimen name="hero_side_padding">262dp</dimen>

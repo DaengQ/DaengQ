@@ -19,12 +19,13 @@
         android:elevation="6dp"
         android:focusable="true">
 
+        <!-- 시작 화면과 같은 입체 마스코트. 큰 원본 대신 버튼 크기에 맞춰 줄인 그림을 쓴다. 그림에 여백이 있어 원과 거의 같은 크기로 둔다 -->
         <ImageView
-            android:layout_width="72dp"
-            android:layout_height="66dp"
+            android:layout_width="124dp"
+            android:layout_height="124dp"
             android:layout_gravity="center"
             android:importantForAccessibility="no"
-            android:src="@drawable/mascot_white" />
+            android:src="@drawable/mascot_button" />
     </FrameLayout>
 
     <LinearLayout
