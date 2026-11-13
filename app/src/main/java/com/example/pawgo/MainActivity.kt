@@ -3,7 +3,6 @@ package com.example.pawgo
 import ai.pleos.playground.navi.constants.NavigationStatus
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
@@ -18,7 +17,7 @@ import android.widget.TextView
 /**
  * 주행 화면(PRD 화면 5). 지도 위에 기록 패널(종류별 횟수, 최근 기록 고치기, 지난 기록, 주행 종료)과
  * 말하기 버튼을 띄운다. 강아지 소리는 자동으로 감지해 기록하고 음성으로 알린다.
- * 직접 기록과 고치기는 말하기 버튼으로 말로 한다.
+ * 직접 기록은 횟수 칸을 누르거나 말하기 버튼으로 말로 하고, 고치기는 최근 기록 버튼이나 말로 한다.
  */
 class MainActivity : Activity(), NaviManager.Callback {
 
@@ -75,7 +74,8 @@ class MainActivity : Activity(), NaviManager.Callback {
         voiceTip = findViewById(R.id.voiceTip)
         voiceTipText = findViewById(R.id.voiceTipText)
         petMap = PetMap(findViewById<FrameLayout>(R.id.mapContainer))
-        countViews = buildCountColumns(findViewById(R.id.driveCounts))
+        // 마이크 없이도 기록할 수 있도록 횟수 칸을 누르면 그 종류를 직접 기록한다
+        countViews = buildCountColumns(findViewById(R.id.driveCounts)) { behavior -> recordBehavior(behavior) }
         latestChoices = RecordChoiceRow(
             this,
             latestRecordActions,
@@ -187,17 +187,11 @@ class MainActivity : Activity(), NaviManager.Callback {
         onTripChanged()
     }
 
-    private fun confirmEndTrip() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.end_trip_title)
-            .setMessage(R.string.end_trip_message)
-            .setPositiveButton(R.string.end_trip_confirm) { _, _ ->
-                tripTracker.endTrip(System.currentTimeMillis())
-                onTripChanged()
-                showPendingTripResult()
-            }
-            .setNegativeButton(R.string.dialog_cancel, null)
-            .show()
+    /** 확인 없이 바로 끝내고 결과 화면으로 간다. */
+    private fun endTrip() {
+        tripTracker.endTrip(System.currentTimeMillis())
+        onTripChanged()
+        showPendingTripResult()
     }
 
     /** 주행 시작·완료에 맞춰 제목, 버튼, 지도, 위치 요청, 소리 감지를 맞춘다. */
@@ -210,7 +204,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         )
         if (tripTracker.isActive) {
             tripButton.setText(R.string.action_end_trip)
-            tripButton.setOnClickListener { confirmEndTrip() }
+            tripButton.setOnClickListener { endTrip() }
         } else {
             tripButton.setText(R.string.action_start_trip)
             tripButton.setOnClickListener { startTrip() }

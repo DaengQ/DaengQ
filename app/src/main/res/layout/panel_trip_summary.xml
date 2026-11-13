@@ -61,7 +61,7 @@
                 android:id="@+id/tripCounts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="28dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" />
 
@@ -133,27 +133,11 @@
         </LinearLayout>
     </ScrollView>
 
-    <LinearLayout
+    <Button
+        android:id="@+id/tripCloseButton"
+        style="@style/Button.Daengq.Strong"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginTop="24dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/tripExportButton"
-            style="@style/Button.Daengq.Secondary"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/action_export_records" />
-
-        <Button
-            android:id="@+id/tripCloseButton"
-            style="@style/Button.Daengq.Strong"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:text="@string/trip_close" />
-    </LinearLayout>
+        android:text="@string/trip_close" />
 </LinearLayout>

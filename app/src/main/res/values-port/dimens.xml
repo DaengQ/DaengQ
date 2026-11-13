@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 세로(분할) 창은 폭이 좁아 시작 화면 여백을 줄인다 -->
-<resources>
-    <dimen name="hero_side_padding">48dp</dimen>
-    <dimen name="hero_bottom_padding">80dp</dimen>
-</resources>

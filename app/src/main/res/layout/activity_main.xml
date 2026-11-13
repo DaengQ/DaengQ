@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 가로 창: 지도를 꽉 채우고 오른쪽에 기록 패널, 왼쪽 아래에 말하기 버튼을 띄운다 -->
+<!-- 가로 화면만 지원한다. 지도를 꽉 채우고 오른쪽에 기록 패널, 왼쪽 아래에 말하기 버튼을 띄운다 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">

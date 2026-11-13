@@ -40,12 +40,12 @@
         android:layout_marginTop="8dp"
         android:visibility="gone" />
 
-    <!-- 종류별 횟수. 코드에서 세 칸과 사이 구분선을 채운다 -->
+    <!-- 종류별 횟수. 코드에서 세 칸과 사이 구분선을 채운다. 칸을 누르면 그 종류를 기록한다 -->
     <LinearLayout
         android:id="@+id/driveCounts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="28dp"
         android:gravity="center_vertical"
         android:orientation="horizontal" />
 

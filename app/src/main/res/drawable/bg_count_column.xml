@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 주행 화면 횟수 칸. 누르면 그 종류를 기록하고, 누르는 동안만 연한 회색이 된다 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape><solid android:color="@color/bg_sub" /><corners android:radius="16dp" /></shape>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

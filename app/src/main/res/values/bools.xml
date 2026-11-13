@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- 밝은 배경에서는 상태 표시줄 아이콘을 어둡게 -->
-    <bool name="light_system_bars">true</bool>
-</resources>

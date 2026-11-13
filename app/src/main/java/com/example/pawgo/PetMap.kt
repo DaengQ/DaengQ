@@ -195,6 +195,7 @@ class PetMap(private val container: FrameLayout) {
         val marker = TMapMarkerItem().apply {
             id = markerId
             icon = squareIcon
+            priority = SQUARE_PRIORITY
             setPosition(0.5f, 0.5f)
             setTMapPoint(point.first, point.second)
         }
@@ -213,6 +214,8 @@ class PetMap(private val container: FrameLayout) {
         val marker = TMapMarkerItem().apply {
             id = LOCATION_MARKER_ID
             icon = locationIcon
+            // 우선순위 숫자가 작을수록 위에 그린다. 현재 위치는 출발 네모·기록보다 위에 둔다
+            priority = LOCATION_PRIORITY
             setPosition(0.5f, 0.5f)
             setTMapPoint(latitude, longitude)
         }
@@ -252,6 +255,8 @@ class PetMap(private val container: FrameLayout) {
         val record = this
         return TMapMarkerItem().apply {
             id = record.markerId()
+            // 기록 동그라미는 출발·도착 네모보다 위, 현재 위치보다 아래에 그린다
+            priority = RECORD_PRIORITY
             icon = markerIcons.getOrPut(record.behavior) { drawMarkerIcon(record.behavior) }
             setPosition(0.5f, 0.5f)
             setTMapPoint(record.latitude!!, record.longitude!!)
@@ -349,6 +354,9 @@ class PetMap(private val container: FrameLayout) {
         private const val ROUTE_LINE_ID = "route"
         private const val ROUTE_WIDTH_DP = 18f
         private const val ROUTE_PRIORITY = 100_000f
+        private const val LOCATION_PRIORITY = 1f
+        private const val RECORD_PRIORITY = 2f
+        private const val SQUARE_PRIORITY = 3f
         private const val MARKER_RADIUS_DP = 18f
         private const val MARKER_STROKE_DP = 3f
         private const val START_ICON_SIZE_DP = 36f

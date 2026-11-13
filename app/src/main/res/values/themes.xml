@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- 댕큐 디자인 시스템 테마. 색은 values/colors.xml과 values-night/colors.xml이 테마에 맞게 바꾼다 -->
-    <style name="Theme.Pawgo" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!-- 댕큐 디자인 시스템 테마. 다크 모드는 지원하지 않고 차가 야간 모드여도 밝은 화면을 쓴다 -->
+    <style name="Theme.Pawgo" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/brand_primary</item>
         <item name="colorPrimaryVariant">@color/brand_primary_active</item>
         <item name="colorOnPrimary">@color/brand_on_primary</item>
@@ -14,7 +14,7 @@
         <item name="fontFamily">@font/asta_sans</item>
         <item name="android:statusBarColor">@color/bg_page</item>
         <item name="android:navigationBarColor">@color/bg_page</item>
-        <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <!--

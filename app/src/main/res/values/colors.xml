@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     댕큐 디자인 시스템 색.
-    화면에서는 스케일 값 대신 아래쪽 시맨틱 색을 쓴다. 다크 값은 values-night/colors.xml에 있다.
+    화면에서는 스케일 값 대신 아래쪽 시맨틱 색을 쓴다. 다크 모드는 지원하지 않는다.
 -->
 <resources>
     <!-- 브랜드: Grass green -->

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 종류별 횟수 한 칸: 종류 이름과 이번 주행 횟수 -->
+<!-- 종류별 횟수 한 칸: 종류 이름과 이번 주행 횟수. 주행 화면에서는 눌러서 그 종류를 기록한다 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
     <TextView
         android:id="@+id/label"

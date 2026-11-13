@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 가로 창: 기록 지도를 꽉 채우고 오른쪽에 결과 패널을 띄운다(주행 화면과 같은 틀) -->
+<!-- 가로 화면만 지원한다. 기록 지도를 꽉 채우고 오른쪽에 결과 패널을 띄운다(주행 화면과 같은 틀) -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">

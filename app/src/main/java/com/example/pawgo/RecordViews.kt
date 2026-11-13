@@ -24,8 +24,14 @@ private val recordTimeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
 private fun Context.dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
-/** 종류별 횟수 세 칸을 [container]에 채운다. 칸 사이에 세로 구분선을 둔다. 돌려받은 글자에 횟수를 쓴다. */
-fun Activity.buildCountColumns(container: LinearLayout): Map<PetBehavior, TextView> {
+/**
+ * 종류별 횟수 세 칸을 [container]에 채운다. 칸 사이에 세로 구분선을 둔다. 돌려받은 글자에 횟수를 쓴다.
+ * [onTap]을 주면 칸을 눌러 그 종류를 기록할 수 있다.
+ */
+fun Activity.buildCountColumns(
+    container: LinearLayout,
+    onTap: ((PetBehavior) -> Unit)? = null,
+): Map<PetBehavior, TextView> {
     val counts = mutableMapOf<PetBehavior, TextView>()
     PetBehavior.entries.forEachIndexed { index, behavior ->
         if (index > 0) {
@@ -37,6 +43,10 @@ fun Activity.buildCountColumns(container: LinearLayout): Map<PetBehavior, TextVi
         val column = layoutInflater.inflate(R.layout.column_drive_count, container, false)
         column.findViewById<TextView>(R.id.label).setText(behavior.labelRes)
         counts[behavior] = column.findViewById(R.id.count)
+        if (onTap != null) {
+            column.setBackgroundResource(R.drawable.bg_count_column)
+            column.setOnClickListener { onTap(behavior) }
+        }
         container.addView(column, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
     }
     return counts

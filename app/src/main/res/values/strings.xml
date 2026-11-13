@@ -43,11 +43,6 @@ local.properties에 TMAP_APP_KEY를 넣어 주세요.</string>
 
     <string name="action_start_trip">주행 시작</string>
     <string name="action_end_trip">주행 종료</string>
-    <string name="end_trip_title">주행을 완료할까요?</string>
-    <string name="end_trip_message">이번 주행의 기록 지도와 결과를 보여 줘요.</string>
-    <string name="end_trip_confirm">완료</string>
-    <string name="dialog_cancel">취소</string>
-    <string name="dialog_ok">확인</string>
 
     <!-- 소리 감지 -->
     <string name="sound_off">주행을 시작하면 강아지 소리를 감지해요.</string>
@@ -81,12 +76,6 @@ local.properties에 TMAP_APP_KEY를 넣어 주세요.</string>
     <string name="trip_peak">출발 후 %1$s이 %2$d건으로 가장 잦았어요.</string>
     <string name="trip_section_records">발성 기록</string>
     <string name="trip_close">닫기</string>
-
-    <!-- 내보내기 -->
-    <string name="action_export_records">지도용 내보내기</string>
-    <string name="export_done_title">GeoJSON 파일로 내보냈어요</string>
-    <string name="export_done_message">기록 %1$d건을 저장했어요 (위치 없는 기록 %2$d건 제외).\n\n%3$s</string>
-    <string name="export_failed">내보내기에 실패했어요: %1$s</string>
     <!-- 주행 화면 -->
     <string name="drive_title_active">%1$s와 드라이브중...</string>
     <string name="drive_title_idle">%1$s와 드라이브할까요?</string>

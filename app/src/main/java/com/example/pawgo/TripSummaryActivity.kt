@@ -1,18 +1,14 @@
 package com.example.pawgo
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import java.io.IOException
 
 /**
  * 주행 결과(PRD 화면 6). 지도에 지나온 길과 출발·도착 지점, 기록을 보여 주고
@@ -47,7 +43,6 @@ class TripSummaryActivity : Activity() {
             findViewById<View>(id).findViewById<TextView>(R.id.tagText).background = TagDrawable(this)
         }
         countViews = buildCountColumns(findViewById(R.id.tripCounts))
-        findViewById<Button>(R.id.tripExportButton).setOnClickListener { export(tripRecords()) }
         // 닫으면 다음 주행을 위해 강아지 선택부터 다시 시작한다
         findViewById<Button>(R.id.tripCloseButton).setOnClickListener {
             startActivity(
@@ -62,13 +57,10 @@ class TripSummaryActivity : Activity() {
         petMap.showRoute(route)
         route.lastOrNull()?.let { petMap.showEnd(it.latitude, it.longitude) }
         render()
-        // 가로 창에서는 결과 패널이 지도 오른쪽을 덮으니 그만큼 비우고 맞춘다
-        val panelCover = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        // 결과 패널이 지도 오른쪽을 덮으니 그만큼 비우고 맞춘다
+        petMap.fitToRecords(
             resources.getDimensionPixelSize(R.dimen.drive_panel_width) + 2 * resources.getDimensionPixelSize(R.dimen.drive_panel_margin)
-        } else {
-            0
-        }
-        petMap.fitToRecords(panelCover)
+        )
     }
 
     override fun onResume() {
@@ -99,7 +91,6 @@ class TripSummaryActivity : Activity() {
             visibility = if (noLocationCount > 0) View.VISIBLE else View.GONE
             text = getString(R.string.trip_no_location, noLocationCount)
         }
-        findViewById<Button>(R.id.tripExportButton).isEnabled = records.any { it.hasLocation }
 
         val counts = TripStats.typeCounts(records)
         renderHighlight(records.size, counts)
@@ -138,11 +129,15 @@ class TripSummaryActivity : Activity() {
         peakTag.visibility = View.VISIBLE
         val bucket = buckets[peak]
         // 예: 출발 후 5-10분이 3건으로 가장 잦았어요. 구간과 건수만 굵게
-        val range = formatElapsedRange(minutesAfterStart(bucket.startMillis), minutesAfterStart(bucket.endMillis))
+        // 끝은 올림해서 1분이 안 되는 짧은 주행도 0-1분으로 쓴다
+        val range = formatElapsedRange(minutesAfterStart(bucket.startMillis), minutesAfterStart(bucket.endMillis, roundUp = true))
         tagText(R.id.tripPeak).text = formatWithBold(R.string.trip_peak, listOf(range, bucket.count), setOf(1, 2))
     }
 
-    private fun minutesAfterStart(time: Long): Int = ((time - trip.startMillis) / 60_000).toInt()
+    private fun minutesAfterStart(time: Long, roundUp: Boolean = false): Int {
+        val elapsed = time - trip.startMillis
+        return ((if (roundUp) elapsed + 59_999 else elapsed) / 60_000).toInt()
+    }
 
     /** 발성 기록 목록. 누른 기록 아래에만 고치기 버튼 줄을 연다. 다시 누르면 닫는다. */
     private fun renderRecordList(records: List<PetRecord>) {
@@ -186,27 +181,6 @@ class TripSummaryActivity : Activity() {
         allRecords.replaceAll { if (it.timeMillis == record.timeMillis) it.copy(behavior = to) else it }
         recordStore.save(allRecords)
         render()
-    }
-
-    private fun export(tripRecords: List<PetRecord>) {
-        val result = try {
-            PetRecordExporter(this).export(tripRecords)
-        } catch (e: IOException) {
-            Toast.makeText(this, getString(R.string.export_failed, e.message.orEmpty()), Toast.LENGTH_LONG).show()
-            return
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.export_done_title)
-            .setMessage(
-                getString(
-                    R.string.export_done_message,
-                    result.exportedCount,
-                    result.skippedCount,
-                    result.file.absolutePath
-                )
-            )
-            .setPositiveButton(R.string.dialog_ok, null)
-            .show()
     }
 
     companion object {
