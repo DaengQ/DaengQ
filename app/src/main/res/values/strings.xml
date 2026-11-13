@@ -70,6 +70,9 @@ local.properties에 TMAP_APP_KEY를 넣어 주세요.</string>
     <string name="trip_title">%1$s와 드라이브 완료!</string>
     <string name="trip_subtitle">오늘도 안전하게, 댕큐</string>
     <string name="trip_highlight">%1$d건 중 %2$s이 %3$d건으로 가장 많았어요.</string>
+    <!-- 종류 이름(울음, 낑낑, 하울링)은 모두 받침이 있어 '이'를 쓴다 -->
+    <string name="trip_highlight_tie">%1$d건 중 %2$s이 %3$d건씩 가장 많았어요.</string>
+    <string name="trip_highlight_even">세 소리가 %1$d건씩 고르게 나왔어요.</string>
     <string name="trip_no_records">이번 주행에서 남은 기록이 없어요. %1$s 편안했나 봐요!</string>
     <string name="trip_no_location">위치를 받지 못한 기록 %1$d건은 지도에 없어요</string>
     <string name="trip_section_timeline">시간대별 발성</string>

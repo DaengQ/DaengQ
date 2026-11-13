@@ -40,7 +40,7 @@ class TripStatsTest {
     fun noRecordsMeansNoPeakOrTopType() {
         val buckets = TripStats.buckets(0, 10 * minute, emptyList())
         assertNull(TripStats.peakIndex(buckets))
-        assertNull(TripStats.topType(TripStats.typeCounts(emptyList())))
+        assertNull(TripStats.topTypes(TripStats.typeCounts(emptyList())))
     }
 
     @Test
@@ -50,6 +50,14 @@ class TripStatsTest {
         }
         val counts = TripStats.typeCounts(records)
         assertEquals(0, counts[PetBehavior.HOWLING])
-        assertEquals(PetBehavior.WHINING to 2, TripStats.topType(counts))
+        assertEquals(listOf(PetBehavior.WHINING) to 2, TripStats.topTypes(counts))
+    }
+
+    @Test
+    fun topTypesKeepsEveryTiedType() {
+        val counts = mapOf(PetBehavior.CRYING to 2, PetBehavior.WHINING to 1, PetBehavior.HOWLING to 2)
+        assertEquals(listOf(PetBehavior.CRYING, PetBehavior.HOWLING) to 2, TripStats.topTypes(counts))
+        val even = PetBehavior.entries.associateWith { 1 }
+        assertEquals(PetBehavior.entries.toList() to 1, TripStats.topTypes(even))
     }
 }

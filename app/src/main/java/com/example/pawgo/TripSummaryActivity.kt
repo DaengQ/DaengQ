@@ -102,12 +102,22 @@ class TripSummaryActivity : Activity() {
     private fun tagText(id: Int): TextView = findViewById<View>(id).findViewById(R.id.tagText)
 
     private fun renderHighlight(total: Int, counts: Map<PetBehavior, Int>) {
-        val top = TripStats.topType(counts)
-        tagText(R.id.tripHighlight).text = if (top == null) {
-            getString(R.string.trip_no_records, petName().withIGa())
-        } else {
+        val top = TripStats.topTypes(counts)
+        val (types, count) = top ?: run {
+            tagText(R.id.tripHighlight).text = getString(R.string.trip_no_records, petName().withIGa())
+            return
+        }
+        tagText(R.id.tripHighlight).text = when (types.size) {
             // 예: 4건 중 울음이 3건으로 가장 많았어요. 종류와 건수만 굵게
-            formatWithBold(R.string.trip_highlight, listOf(total, getString(top.first.labelRes), top.second), setOf(2, 3))
+            1 -> formatWithBold(R.string.trip_highlight, listOf(total, getString(types[0].labelRes), count), setOf(2, 3))
+            // 세 종류가 모두 같으면 고르게 나왔다고 쓴다. 예: 세 소리가 1건씩 고르게 나왔어요.
+            PetBehavior.entries.size -> formatWithBold(R.string.trip_highlight_even, listOf(count), setOf(1))
+            // 두 종류가 같으면 둘을 함께 쓴다. 예: 4건 중 울음·하울링이 2건씩 가장 많았어요.
+            else -> formatWithBold(
+                R.string.trip_highlight_tie,
+                listOf(total, types.joinToString("·") { getString(it.labelRes) }, count),
+                setOf(2, 3),
+            )
         }
     }
 

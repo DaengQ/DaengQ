@@ -45,12 +45,12 @@ object TripStats {
         return PetBehavior.entries.associateWith { counts[it] ?: 0 }
     }
 
-    /** 가장 많은 종류와 건수. 같으면 앞 종류. 기록이 없으면 null. */
-    fun topType(counts: Map<PetBehavior, Int>): Pair<PetBehavior, Int>? =
-        PetBehavior.entries
-            .map { it to (counts[it] ?: 0) }
-            .filter { it.second > 0 }
-            .maxByOrNull { it.second }
+    /** 가장 많은 종류들과 그 건수. 같은 건수면 모두 넣는다(종류 순서대로). 기록이 없으면 null. */
+    fun topTypes(counts: Map<PetBehavior, Int>): Pair<List<PetBehavior>, Int>? {
+        val max = PetBehavior.entries.maxOf { counts[it] ?: 0 }
+        if (max == 0) return null
+        return PetBehavior.entries.filter { (counts[it] ?: 0) == max } to max
+    }
 
     private fun barCount(durationMillis: Long, minutes: Int): Int =
         ceil(durationMillis.toDouble() / (minutes * MINUTE_MS)).toInt().coerceAtLeast(1)
