@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 7.x용 아이콘(img_apps.svg 그대로). 8.0부터는 mipmap-anydpi-v26의 적응형 아이콘을 쓴다 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="144"
+    android:viewportHeight="144">
+    <path
+        android:fillColor="#FF151A23"
+        android:pathData="M44,0h56a44,44 0 0,1 44,44v56a44,44 0 0,1 -44,44h-56a44,44 0 0,1 -44,-44v-56a44,44 0 0,1 44,-44z" />
+    <group>
+        <path android:fillColor="#FF4ABF54" android:pathData="M92.5296,105.463C83.4731,121.034 60.9817,121.034 51.9252,105.463L33.0594,73.0273C23.9525,57.3698 35.2482,37.7324 53.3616,37.7324H91.0932C109.207,37.7324 120.502,57.3698 111.395,73.0273L92.5296,105.463Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M71.7163,62.5561a19.2162,19.2162 0 1,0 38.4324,0a19.2162,19.2162 0 1,0 -38.4324,0Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M53.5677,52.1469a2.13514,2.13514 0 1,0 4.27028,0a2.13514,2.13514 0 1,0 -4.27028,0Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M59.9731,52.1469a2.13514,2.13514 0 1,0 4.27028,0a2.13514,2.13514 0 1,0 -4.27028,0Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M49.3824,67.8871C48.0167,68.7099 46.3079,68.7099 44.9421,67.8871L39.1561,64.4013C35.422,62.1517 37.0169,56.4138 41.3763,56.4138L52.9482,56.4138C57.3076,56.4138 58.9025,62.1517 55.1684,64.4013L49.3824,67.8871Z" />
+        <path
+            android:pathData="M47.1622,68.1613L47.1622,76.7019"
+            android:strokeWidth="2.13514"
+            android:strokeColor="#FF151A23"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

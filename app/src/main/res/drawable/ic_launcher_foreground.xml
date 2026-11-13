@@ -1,30 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    앱 아이콘 마스코트(img_apps.svg). 원본 144 아이콘이 적응형 아이콘의 보이는 72dp에 들어가도록
+    반으로 줄여 가운데(18dp 안쪽)에 둔다.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000" />
+    <group
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:translateX="18"
+        android:translateY="18">
+        <path android:fillColor="#FF4ABF54" android:pathData="M92.5296,105.463C83.4731,121.034 60.9817,121.034 51.9252,105.463L33.0594,73.0273C23.9525,57.3698 35.2482,37.7324 53.3616,37.7324H91.0932C109.207,37.7324 120.502,57.3698 111.395,73.0273L92.5296,105.463Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M71.7163,62.5561a19.2162,19.2162 0 1,0 38.4324,0a19.2162,19.2162 0 1,0 -38.4324,0Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M53.5677,52.1469a2.13514,2.13514 0 1,0 4.27028,0a2.13514,2.13514 0 1,0 -4.27028,0Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M59.9731,52.1469a2.13514,2.13514 0 1,0 4.27028,0a2.13514,2.13514 0 1,0 -4.27028,0Z" />
+        <path android:fillColor="#FF151A23" android:pathData="M49.3824,67.8871C48.0167,68.7099 46.3079,68.7099 44.9421,67.8871L39.1561,64.4013C35.422,62.1517 37.0169,56.4138 41.3763,56.4138L52.9482,56.4138C57.3076,56.4138 58.9025,62.1517 55.1684,64.4013L49.3824,67.8871Z" />
+        <path
+            android:pathData="M47.1622,68.1613L47.1622,76.7019"
+            android:strokeWidth="2.13514"
+            android:strokeColor="#FF151A23"
+            android:strokeLineCap="round" />
+    </group>
 </vector>
