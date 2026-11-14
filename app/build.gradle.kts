@@ -39,6 +39,10 @@ android {
             }
         }
     }
+    testOptions {
+        // android.util.Log 같은 안드로이드 API를 단위 테스트에서 호출해도 멈추지 않게 한다
+        unitTests.isReturnDefaultValues = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -50,6 +54,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
     testImplementation(libs.junit)
+    // 단위 테스트의 android.jar에는 org.json 구현이 없어 PetRecordStore를 실제 JSON으로 시험하려고 넣는다
+    testImplementation("org.json:json:20231013")
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     implementation("ai.pleos.playground:Vehicle:2.3.2")
