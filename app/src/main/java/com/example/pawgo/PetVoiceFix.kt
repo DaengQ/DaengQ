@@ -40,9 +40,12 @@ class PetVoiceFix(
         ears.connect()
     }
 
-    /** 어떻게 고칠지 묻고 듣는다. 이미 대화 중이거나 음성 엔진이 준비되지 않았으면 false. */
+    /**
+     * 어떻게 고칠지 묻고 듣는다. 안내 문장(감지 알림, 마무리 말)을 읽는 중이면 끊고 바로 묻는다.
+     * 이미 묻거나 듣는 중이거나 음성 엔진이 준비되지 않았으면 false.
+     */
     fun start(): Boolean {
-        if (isBusy || !voice.isReady || !ears.isReady) return false
+        if (step == Step.ASKING || !voice.isReady || !ears.isReady) return false
         attempt = 1
         say(Step.ASKING, context.getString(R.string.voice_fix_question))
         return true
