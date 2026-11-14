@@ -44,7 +44,7 @@ class PetMap(private val container: FrameLayout) {
     private var isReleased = false
 
     private val shownMarkerIds = mutableSetOf<String>()
-    private var nextRecordPriority = RECORD_PRIORITY_FIRST
+    private var nextRecordPriority = MapLayer.RECORD_BOTTOM
     private var pendingRecords: List<PetRecord> = emptyList()
     private var pendingLocation: Pair<Double, Double>? = null
     private var pendingStart: Pair<Double, Double>? = null
@@ -178,7 +178,7 @@ class PetMap(private val container: FrameLayout) {
             outLineColor = context.getColor(R.color.map_route)
             outLineWidth = 0f
             // 우선순위 숫자가 작을수록 위에 그린다. 마커(기본 9999)가 선 위에 보이도록 선은 더 크게 둔다
-            priority = ROUTE_PRIORITY
+            priority = MapLayer.ROUTE
         }
         view.addTMapPolyLine(line)
     }
@@ -196,7 +196,7 @@ class PetMap(private val container: FrameLayout) {
         val marker = TMapMarkerItem().apply {
             id = markerId
             icon = squareIcon
-            priority = SQUARE_PRIORITY
+            priority = MapLayer.SQUARE
             setPosition(0.5f, 0.5f)
             setTMapPoint(point.first, point.second)
         }
@@ -216,7 +216,7 @@ class PetMap(private val container: FrameLayout) {
             id = LOCATION_MARKER_ID
             icon = locationIcon
             // 우선순위 숫자가 작을수록 위에 그린다. 현재 위치는 출발 네모·기록보다 위에 둔다
-            priority = LOCATION_PRIORITY
+            priority = MapLayer.LOCATION
             setPosition(0.5f, 0.5f)
             setTMapPoint(latitude, longitude)
         }
@@ -256,10 +256,8 @@ class PetMap(private val container: FrameLayout) {
         val record = this
         return TMapMarkerItem().apply {
             id = record.markerId()
-            // 기록 동그라미는 출발·도착 네모보다 위, 현재 위치보다 아래에 그린다.
-            // 같은 자리에 겹치면 나중에 그린 기록(새 기록, 방금 고친 기록)이 위에 오도록 조금씩 작게 준다
             priority = nextRecordPriority
-            nextRecordPriority = maxOf(RECORD_PRIORITY, nextRecordPriority - RECORD_PRIORITY_STEP)
+            nextRecordPriority = MapLayer.nextRecord(nextRecordPriority)
             icon = markerIcons.getOrPut(record.behavior) { drawMarkerIcon(record.behavior) }
             setPosition(0.5f, 0.5f)
             setTMapPoint(record.latitude!!, record.longitude!!)
@@ -356,12 +354,6 @@ class PetMap(private val container: FrameLayout) {
         private const val END_MARKER_ID = "end"
         private const val ROUTE_LINE_ID = "route"
         private const val ROUTE_WIDTH_DP = 18f
-        private const val ROUTE_PRIORITY = 100_000f
-        private const val LOCATION_PRIORITY = 1f
-        private const val RECORD_PRIORITY = 2f
-        private const val RECORD_PRIORITY_FIRST = 2.99f
-        private const val RECORD_PRIORITY_STEP = 0.0001f
-        private const val SQUARE_PRIORITY = 3f
         private const val MARKER_RADIUS_DP = 18f
         private const val MARKER_STROKE_DP = 3f
         private const val START_ICON_SIZE_DP = 36f
