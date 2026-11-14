@@ -17,15 +17,15 @@ data class RoutePoint(val timeMillis: Long, val latitude: Double, val longitude:
 class RouteStore(context: Context) {
 
     private val file = File(context.filesDir, FILE_NAME)
-    private var last: RoutePoint? = null
 
-    /** 앞 점에서 [MIN_STEP_METERS] 이상 움직였을 때만 남긴다. 서 있을 때 같은 자리가 쌓이지 않게 한다. */
-    fun add(point: RoutePoint): Boolean {
-        val previous = last ?: load(0L, point.timeMillis).lastOrNull()
+    /**
+     * 이번 주행의 앞 점 [previous]에서 [MIN_STEP_METERS] 이상 움직였을 때만 남긴다. 서 있을 때 같은 자리가 쌓이지 않게 한다.
+     * 주행의 첫 점([previous]가 null)은 언제나 남긴다. 지난 주행이 끝난 자리에서 다시 출발해도 경로가 출발점부터 이어진다.
+     */
+    fun add(point: RoutePoint, previous: RoutePoint?): Boolean {
         if (previous != null && RouteMath.distanceMeters(previous, point) < MIN_STEP_METERS) return false
         return try {
             file.appendText("${point.timeMillis},${point.latitude},${point.longitude}\n")
-            last = point
             true
         } catch (e: IOException) {
             Log.e(TAG, "Failed to save route point", e)
@@ -50,7 +50,6 @@ class RouteStore(context: Context) {
         try {
             val kept = file.readLines().filter { line -> (parse(line)?.timeMillis ?: 0L) >= beforeMillis }
             file.writeText(kept.joinToString("") { "$it\n" })
-            last = null
         } catch (e: IOException) {
             Log.e(TAG, "Failed to prune route", e)
         }

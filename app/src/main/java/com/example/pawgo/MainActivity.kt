@@ -155,7 +155,7 @@ class MainActivity : Activity(), NaviManager.Callback {
         showStartPoint()
         if (tripTracker.isActive) {
             val point = RoutePoint(System.currentTimeMillis(), latitude, longitude)
-            if (routeStore.add(point)) {
+            if (routeStore.add(point, previous = route.lastOrNull())) {
                 route.add(point)
                 petMap.showRoute(route.toList())
             }
