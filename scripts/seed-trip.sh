@@ -17,8 +17,9 @@ DOG_BUTTON_Y=1050
 
 usage() { sed -n '2,8p' "$0" >&2; exit 2; }
 [[ $# -ge 2 ]] || usage
-minutes=$1; shift
-[[ $minutes =~ ^[0-9]+$ && $minutes -gt 0 ]] || { echo "trip-minutes must be a positive number: $minutes" >&2; exit 2; }
+minutes=$1 given_minutes=$1; shift
+# 10#: bash would read a leading 0 as octal (010 -> 8, 08 -> error)
+[[ $minutes =~ ^[0-9]+$ ]] && minutes=$(( 10#$minutes )) && (( minutes > 0 )) || { echo "trip-minutes must be a positive number: $given_minutes" >&2; exit 2; }
 
 now=$(( $(date +%s) * 1000 ))
 start=$(( now - minutes * 60000 ))
@@ -27,6 +28,7 @@ for spec in "$@"; do
   minute=${spec%%:*}
   type=${spec#*:}
   [[ $spec == *:* && $minute =~ ^[0-9]+$ ]] || { echo "expected <minute>:<TYPE>, got: $spec" >&2; exit 2; }
+  minute=$(( 10#$minute ))
   case $type in CRYING|WHINING|HOWLING) ;; *) echo "TYPE must be CRYING, WHINING or HOWLING, got: '$type'" >&2; exit 2;; esac
   (( minute <= minutes )) || { echo "minute $minute is after the trip ends at $minutes" >&2; exit 2; }
   latitude=$(awk -v i="$i" 'BEGIN { printf "%.4f", 37.4020 + i * 0.0006 }')
