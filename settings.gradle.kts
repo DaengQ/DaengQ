@@ -25,5 +25,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Pawgo"
+rootProject.name = "DaengQ"
 include(":app")
