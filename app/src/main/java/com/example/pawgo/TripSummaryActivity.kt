@@ -3,7 +3,10 @@ package com.example.pawgo
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.text.StaticLayout
+import android.text.TextPaint
 import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
@@ -142,13 +145,31 @@ class TripSummaryActivity : Activity() {
         val ranges = peaks.map { i ->
             formatElapsedRange(minutesAfterStart(buckets[i].startMillis), minutesAfterStart(buckets[i].endMillis, roundUp = true))
         }
-        tagText(R.id.tripPeak).text = when (ranges.size) {
-            // 예: 출발 후 5-10분이 3건으로 가장 잦았어요. 구간과 건수만 굵게
-            1 -> formatWithBold(R.string.trip_peak, listOf(ranges[0], count), setOf(1, 2))
-            // 예: 출발 후 0-5분과 20-25분이 2건씩 가장 잦았어요.
-            2 -> formatWithBold(R.string.trip_peak_two, listOf(ranges[0], ranges[1], count), setOf(1, 2, 3))
-            // 구간을 다 쓰면 너무 길어 개수만 쓴다. 예: 3개 구간이 2건씩 가장 잦았어요.
-            else -> formatWithBold(R.string.trip_peak_many, listOf(ranges.size, count), setOf(1, 2))
+        val many = formatWithBold(R.string.trip_peak_many, listOf(ranges.size, count), setOf(1, 2))
+        tagText(R.id.tripPeak).setFirstFitting(
+            when (ranges.size) {
+                // 예: 출발 후 5-10분이 3건으로 가장 잦았어요. 구간과 건수만 굵게
+                1 -> listOf(formatWithBold(R.string.trip_peak, listOf(ranges[0], count), setOf(1, 2)))
+                // 예: 출발 후 0-5분과 20-25분이 2건씩 가장 잦았어요. 한 줄에 안 들어가면 개수만 쓴다
+                2 -> listOf(formatWithBold(R.string.trip_peak_two, listOf(ranges[0], ranges[1], count), setOf(1, 2, 3)), many)
+                // 예: 3개 구간이 2건씩 가장 잦았어요.
+                else -> listOf(many)
+            },
+        )
+    }
+
+    /**
+     * 가장 작은 자동 글자 크기로도 한 줄에 다 들어가는 첫 문장을 쓴다. 모두 넘치면 마지막 문장.
+     * 폭은 그려진 뒤에야 알 수 있어 먼저 첫 문장을 두고 그린 다음 고른다.
+     */
+    private fun TextView.setFirstFitting(candidates: List<CharSequence>) {
+        text = candidates.first()
+        if (candidates.size == 1) return
+        post {
+            val minSize = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) autoSizeMinTextSize.toFloat() else textSize
+            val measure = TextPaint(paint).apply { textSize = minSize }
+            val available = width - totalPaddingLeft - totalPaddingRight
+            text = candidates.firstOrNull { StaticLayout.getDesiredWidth(it, measure) <= available } ?: candidates.last()
         }
     }
 

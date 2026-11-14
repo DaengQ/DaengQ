@@ -12,7 +12,17 @@ fun formatElapsed(minutes: Int): String = when {
     else -> "${minutes / 60}시간 ${minutes % 60}분"
 }
 
-/** 출발 후 구간. 1시간 안이면 단위를 한 번만 쓴다. 예: 5-10분, 50분-1시간, 1시간-1시간 5분. */
-fun formatElapsedRange(startMinutes: Int, endMinutes: Int): String =
-    if (endMinutes < 60) "$startMinutes-${endMinutes}분"
-    else "${formatElapsed(startMinutes)}-${formatElapsed(endMinutes)}"
+/**
+ * 출발 후 구간. 결과 꼬리표 한 줄에 두 구간이 들어가도록 겹치는 단위는 한 번만 쓴다.
+ * 예: 5-10분, 1-2시간, 1시간 15-30분, 50분-1시간, 1시간 45분-2시간.
+ */
+fun formatElapsedRange(startMinutes: Int, endMinutes: Int): String {
+    val startHour = startMinutes / 60
+    val endHour = endMinutes / 60
+    return when {
+        endMinutes < 60 -> "$startMinutes-${endMinutes}분"
+        startMinutes % 60 == 0 && endMinutes % 60 == 0 -> "$startHour-${endHour}시간"
+        startHour == endHour -> "${startHour}시간 ${startMinutes % 60}-${endMinutes % 60}분"
+        else -> "${formatElapsed(startMinutes)}-${formatElapsed(endMinutes)}"
+    }
+}
