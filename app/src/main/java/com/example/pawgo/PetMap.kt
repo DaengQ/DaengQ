@@ -44,6 +44,7 @@ class PetMap(private val container: FrameLayout) {
     private var isReleased = false
 
     private val shownMarkerIds = mutableSetOf<String>()
+    private var nextRecordPriority = RECORD_PRIORITY_FIRST
     private var pendingRecords: List<PetRecord> = emptyList()
     private var pendingLocation: Pair<Double, Double>? = null
     private var pendingStart: Pair<Double, Double>? = null
@@ -161,7 +162,7 @@ class PetMap(private val container: FrameLayout) {
         val wantedIds = located.map { it.markerId() }.toSet()
         (shownMarkerIds - wantedIds).forEach { view.removeTMapMarkerItem(it) }
         shownMarkerIds.retainAll(wantedIds)
-        located.filter { it.markerId() !in shownMarkerIds }.forEach { record ->
+        located.filter { it.markerId() !in shownMarkerIds }.sortedBy { it.timeMillis }.forEach { record ->
             view.addTMapMarkerItem(record.toMarker())
             shownMarkerIds += record.markerId()
         }
@@ -255,8 +256,10 @@ class PetMap(private val container: FrameLayout) {
         val record = this
         return TMapMarkerItem().apply {
             id = record.markerId()
-            // 기록 동그라미는 출발·도착 네모보다 위, 현재 위치보다 아래에 그린다
-            priority = RECORD_PRIORITY
+            // 기록 동그라미는 출발·도착 네모보다 위, 현재 위치보다 아래에 그린다.
+            // 같은 자리에 겹치면 나중에 그린 기록(새 기록, 방금 고친 기록)이 위에 오도록 조금씩 작게 준다
+            priority = nextRecordPriority
+            nextRecordPriority = maxOf(RECORD_PRIORITY, nextRecordPriority - RECORD_PRIORITY_STEP)
             icon = markerIcons.getOrPut(record.behavior) { drawMarkerIcon(record.behavior) }
             setPosition(0.5f, 0.5f)
             setTMapPoint(record.latitude!!, record.longitude!!)
@@ -356,6 +359,8 @@ class PetMap(private val container: FrameLayout) {
         private const val ROUTE_PRIORITY = 100_000f
         private const val LOCATION_PRIORITY = 1f
         private const val RECORD_PRIORITY = 2f
+        private const val RECORD_PRIORITY_FIRST = 2.99f
+        private const val RECORD_PRIORITY_STEP = 0.0001f
         private const val SQUARE_PRIORITY = 3f
         private const val MARKER_RADIUS_DP = 18f
         private const val MARKER_STROKE_DP = 3f

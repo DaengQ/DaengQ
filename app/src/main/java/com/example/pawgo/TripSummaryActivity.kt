@@ -129,19 +129,27 @@ class TripSummaryActivity : Activity() {
         }
         section.visibility = View.VISIBLE
         val buckets = TripStats.buckets(trip.startMillis, trip.endMillis, records.map { it.timeMillis })
-        val peak = TripStats.peakIndex(buckets)
-        findViewById<TimelineChartView>(R.id.tripTimeline).setData(buckets, peak, trip.startMillis)
+        val peaks = TripStats.peakIndices(buckets)
+        findViewById<TimelineChartView>(R.id.tripTimeline).setData(buckets, peaks, trip.startMillis)
         val peakTag = findViewById<View>(R.id.tripPeak)
-        if (peak == null) {
+        if (peaks.isEmpty()) {
             peakTag.visibility = View.GONE
             return
         }
         peakTag.visibility = View.VISIBLE
-        val bucket = buckets[peak]
-        // 예: 출발 후 5-10분이 3건으로 가장 잦았어요. 구간과 건수만 굵게
+        val count = buckets[peaks[0]].count
         // 끝은 올림해서 1분이 안 되는 짧은 주행도 0-1분으로 쓴다
-        val range = formatElapsedRange(minutesAfterStart(bucket.startMillis), minutesAfterStart(bucket.endMillis, roundUp = true))
-        tagText(R.id.tripPeak).text = formatWithBold(R.string.trip_peak, listOf(range, bucket.count), setOf(1, 2))
+        val ranges = peaks.map { i ->
+            formatElapsedRange(minutesAfterStart(buckets[i].startMillis), minutesAfterStart(buckets[i].endMillis, roundUp = true))
+        }
+        tagText(R.id.tripPeak).text = when (ranges.size) {
+            // 예: 출발 후 5-10분이 3건으로 가장 잦았어요. 구간과 건수만 굵게
+            1 -> formatWithBold(R.string.trip_peak, listOf(ranges[0], count), setOf(1, 2))
+            // 예: 출발 후 0-5분과 20-25분이 2건씩 가장 잦았어요.
+            2 -> formatWithBold(R.string.trip_peak_two, listOf(ranges[0], ranges[1], count), setOf(1, 2, 3))
+            // 구간을 다 쓰면 너무 길어 개수만 쓴다. 예: 3개 구간이 2건씩 가장 잦았어요.
+            else -> formatWithBold(R.string.trip_peak_many, listOf(ranges.size, count), setOf(1, 2))
+        }
     }
 
     private fun minutesAfterStart(time: Long, roundUp: Boolean = false): Int {

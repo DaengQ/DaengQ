@@ -33,10 +33,11 @@ object TripStats {
         }
     }
 
-    /** 건수가 가장 많은 막대. 같으면 이른 막대. 기록이 없으면 null. */
-    fun peakIndex(buckets: List<TimeBucket>): Int? {
-        val max = buckets.maxOfOrNull { it.count } ?: return null
-        return if (max == 0) null else buckets.indexOfFirst { it.count == max }
+    /** 건수가 가장 많은 막대들(이른 순서). 기록이 없으면 빈 목록. */
+    fun peakIndices(buckets: List<TimeBucket>): List<Int> {
+        val max = buckets.maxOfOrNull { it.count } ?: return emptyList()
+        if (max == 0) return emptyList()
+        return buckets.indices.filter { buckets[it].count == max }
     }
 
     /** 세 종류 모두의 건수. 기록이 없는 종류는 0. */

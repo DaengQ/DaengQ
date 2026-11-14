@@ -20,7 +20,7 @@ class TimelineChartView @JvmOverloads constructor(
 ) : View(context, attrs) {
 
     private var buckets: List<TimeBucket> = emptyList()
-    private var peakIndex: Int? = null
+    private var peakIndices: Set<Int> = emptySet()
     private var tripStartMillis = 0L
 
     private val typeface = ResourcesCompat.getFont(context, R.font.asta_sans)
@@ -44,9 +44,9 @@ class TimelineChartView @JvmOverloads constructor(
     }
     private val rect = RectF()
 
-    fun setData(buckets: List<TimeBucket>, peakIndex: Int?, tripStartMillis: Long) {
+    fun setData(buckets: List<TimeBucket>, peakIndices: Collection<Int>, tripStartMillis: Long) {
         this.buckets = buckets
-        this.peakIndex = peakIndex
+        this.peakIndices = peakIndices.toSet()
         this.tripStartMillis = tripStartMillis
         invalidate()
     }
@@ -73,7 +73,7 @@ class TimelineChartView @JvmOverloads constructor(
             if (bucket.count > 0) {
                 val top = chartBottom - (chartBottom - chartTop) * bucket.count / maxCount
                 rect.set(left, top, right, chartBottom)
-                barPaint.color = context.getColor(if (i == peakIndex) R.color.chart_bar_peak else R.color.chart_bar)
+                barPaint.color = context.getColor(if (i in peakIndices) R.color.chart_bar_peak else R.color.chart_bar)
                 canvas.drawRoundRect(rect, radius, radius, barPaint)
                 // 아래쪽 모서리는 각지게 덮는다
                 canvas.drawRect(left, (top + radius).coerceAtMost(chartBottom), right, chartBottom, barPaint)

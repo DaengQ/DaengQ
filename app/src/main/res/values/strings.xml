@@ -77,6 +77,9 @@ local.properties에 TMAP_APP_KEY를 넣어 주세요.</string>
     <string name="trip_no_location">위치를 받지 못한 기록 %1$d건은 지도에 없어요</string>
     <string name="trip_section_timeline">시간대별 발성</string>
     <string name="trip_peak">출발 후 %1$s이 %2$d건으로 가장 잦았어요.</string>
+    <!-- 구간은 '분'이나 '시간'으로 끝나 받침이 있다 -->
+    <string name="trip_peak_two">출발 후 %1$s과 %2$s이 %3$d건씩 가장 잦았어요.</string>
+    <string name="trip_peak_many">%1$d개 구간이 %2$d건씩 가장 잦았어요.</string>
     <string name="trip_section_records">발성 기록</string>
     <string name="trip_close">닫기</string>
     <!-- 주행 화면 -->

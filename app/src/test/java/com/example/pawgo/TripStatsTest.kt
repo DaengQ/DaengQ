@@ -28,18 +28,18 @@ class TripStatsTest {
     }
 
     @Test
-    fun countsRecordsAndPicksEarliestPeak() {
+    fun countsRecordsAndKeepsEveryTiedPeak() {
         val times = listOf(1 * minute, 12 * minute, 13 * minute, 22 * minute, 23 * minute, 30 * minute)
         val buckets = TripStats.buckets(0, 30 * minute, times)
         assertEquals(listOf(1, 0, 2, 0, 2, 1), buckets.map { it.count })
-        // 끝 시각의 기록은 마지막 막대에 들어가고, 같은 건수면 이른 막대가 고점이다
-        assertEquals(2, TripStats.peakIndex(buckets))
+        // 끝 시각의 기록은 마지막 막대에 들어가고, 같은 건수인 고점은 모두 남긴다
+        assertEquals(listOf(2, 4), TripStats.peakIndices(buckets))
     }
 
     @Test
     fun noRecordsMeansNoPeakOrTopType() {
         val buckets = TripStats.buckets(0, 10 * minute, emptyList())
-        assertNull(TripStats.peakIndex(buckets))
+        assertEquals(emptyList<Int>(), TripStats.peakIndices(buckets))
         assertNull(TripStats.topTypes(TripStats.typeCounts(emptyList())))
     }
 
