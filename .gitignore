@@ -16,3 +16,5 @@ local.properties
 .kotlin
 /.idea/deploymentTargetSelector.xml
 /.idea/vcs.xml
+# TMAP SDK는 SK 배포 파일이라 저장소에 넣지 않는다. 받는 방법은 README.md
+/app/libs/*.aar
