@@ -34,4 +34,31 @@ class PetCommandTest {
         assertEquals(PetCommand.Unknown, PetCommand.parse("음"))
         assertEquals(PetCommand.Unknown, PetCommand.parse("울음 아니야"))
     }
+
+    @Test
+    fun doesNotDoWhatTheDriverSaidNotToDo() {
+        assertEquals(PetCommand.Change(null, PetBehavior.CRYING), PetCommand.parse("지우지 말고 울음으로 바꿔"))
+        assertEquals(PetCommand.Cancel, PetCommand.parse("지우지 마"))
+        assertEquals(PetCommand.Cancel, PetCommand.parse("아니야 지우지 마"))
+        assertEquals(PetCommand.Cancel, PetCommand.parse("삭제하지 마"))
+        assertEquals(PetCommand.Cancel, PetCommand.parse("지우면 안 돼"))
+        assertEquals(PetCommand.Cancel, PetCommand.parse("하울링 바꾸지 마"))
+        assertEquals(PetCommand.Cancel, PetCommand.parse("울음 맞아 바꾸지 마"))
+    }
+
+    @Test
+    fun saidItDidNotMakeTheSoundDeletesThatRecord() {
+        assertEquals(PetCommand.Delete(PetBehavior.CRYING), PetCommand.parse("방금 안 울었어"))
+        assertEquals(PetCommand.Delete(PetBehavior.WHINING), PetCommand.parse("낑낑 안 했어"))
+        assertEquals(PetCommand.Delete(PetBehavior.CRYING), PetCommand.parse("울지 않았어"))
+        assertEquals(PetCommand.Unknown, PetCommand.parse("안 했어"))
+    }
+
+    @Test
+    fun understandsOtherWaysOfSayingDelete() {
+        assertEquals(PetCommand.Delete(PetBehavior.WHINING), PetCommand.parse("낑낑 지울래"))
+        assertEquals(PetCommand.Delete(null), PetCommand.parse("방금 거 지운다"))
+        assertEquals(PetCommand.Delete(PetBehavior.HOWLING), PetCommand.parse("하울링 지울래"))
+        assertEquals(PetCommand.Delete(PetBehavior.WHINING), PetCommand.parse("낑낑 없앨래"))
+    }
 }
