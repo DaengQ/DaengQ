@@ -26,17 +26,17 @@ Pleos Connect 차량용 안드로이드 앱이에요. 운전 중에는 화면을
 
 | 단계 | 기능 |
 | --- | --- |
-| 출발 전 | 함께 탈 강아지를 고르거나 새로 등록해요. |
-| 주행 중 | 차량 마이크로 강아지 소리(울음, 낑낑, 하울링)를 감지해 시간과 위치를 함께 기록하고, 음성으로 알려 줘요. |
-| 주행 중 | 운전자가 직접 기록하거나 고칠 때는 버튼을 누르거나 "아까 거 울음으로 바꿔줘"처럼 말하면 돼요. |
-| 주행 중 | TMAP 지도에 지나온 길과 기록 위치를 실시간으로 보여 줘요. |
-| 주행 후 | 결과 화면에서 지나온 길, 종류별 횟수, 시간대별 막대그래프, 가장 많았던 소리와 구간을 한 줄로 요약해 줘요. |
+| 출발&nbsp;전 | 함께 탈 강아지를 고르거나 새로 등록해요. |
+| 주행&nbsp;중 | 차량 마이크로 강아지 소리(울음, 낑낑, 하울링)를 감지해 시간과 위치를 함께 기록하고, 음성으로 알려 줘요. |
+| 주행&nbsp;중 | 운전자가 직접 기록하거나 고칠 때는 버튼을 누르거나 "아까 거 울음으로 바꿔줘"처럼 말하면 돼요. |
+| 주행&nbsp;중 | TMAP 지도에 지나온 길과 기록 위치를 실시간으로 보여 줘요. |
+| 주행&nbsp;후 | 결과 화면에서 지나온 길, 종류별 횟수, 시간대별 막대그래프, 가장 많았던 소리와 구간을 한 줄로 요약해 줘요. |
 
 ## 2. 팀원 소개
 
 | 이름 | 역할 | 담당 |
 | --- | --- | --- |
-| 구가경 | 팀장 | 기획 |
+| 구가영 | 팀장 | 기획 |
 | 김나경 | 팀원 | 디자인, 개발 |
 
 ## 3. 기술 스택
@@ -47,9 +47,9 @@ Pleos Connect 차량용 안드로이드 앱이에요. 운전 중에는 화면을
 | 언어 | Kotlin |
 | 빌드 | Gradle (Kotlin DSL), Android Gradle Plugin 9.5 |
 | UI | Android View, AndroidX AppCompat, Material Components, 커스텀 View (시간대별 막대그래프, 적응 타이머 게이지) |
-| 차량 SDK | Pleos Playground SDK: Vehicle, NaviHelper (현재 위치), TextToSpeech, SpeechToText (차량 내장 엔진, 온디바이스) |
+| 차량&nbsp;SDK | Pleos Playground SDK: Vehicle, NaviHelper (현재 위치), TextToSpeech, SpeechToText (차량 내장 엔진, 온디바이스) |
 | 지도 | TMAP Android SDK 3.8 |
-| 소리 감지 | MediaPipe Audio Classifier, YAMNet (온디바이스) |
+| 소리&nbsp;감지 | MediaPipe Audio Classifier, YAMNet (온디바이스) |
 | 저장 | JSON 파일, SharedPreferences |
 | 테스트 | JUnit 4 |
 
